@@ -18,20 +18,17 @@
             position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; pointer-events: none;
         }
 
-        /* Cursor */
-        .cursor::after {
-            content: '█';
-            animation: blink 1s step-end infinite;
-            color: #ef4444;
-        }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
         /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; background: #18181b; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
 
-        /* Utility for Disabled Buttons */
+        /* Utility */
         .btn-disabled { opacity: 0.5; cursor: not-allowed; }
+        .code-inactive { opacity: 0.2; filter: grayscale(100%); transition: all 0.3s; }
+        .code-active { opacity: 1; border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); transition: all 0.3s; }
+        
+        /* Terminal Input */
+        .cmd-input { background: transparent; border: none; outline: none; color: white; width: 100%; font-family: inherit; }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-300 overflow-hidden h-screen flex flex-col selection:bg-red-900 selection:text-white">
@@ -41,7 +38,7 @@
     <header class="h-12 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/50 z-10 relative">
         <div class="flex items-center space-x-4">
             <span class="text-red-500 font-bold tracking-widest">KYAKZ.OS</span>
-            <span class="text-xs text-zinc-500">// KERNEL v4.2</span>
+            <span class="text-xs text-zinc-500">// KERNEL v4.3.1</span>
         </div>
         <div class="hidden md:flex items-center space-x-6 text-xs text-zinc-500 font-bold">
             <div id="status-mem">MEM: 14MB</div>
@@ -83,13 +80,13 @@
 
         <section id="viewport" class="flex-1 bg-black/50 p-6 md:p-10 relative overflow-y-auto w-full">
             
-            <div id="terminal" class="max-w-3xl mx-auto">
+            <div id="terminal" class="max-w-3xl mx-auto h-full flex flex-col">
                 <div class="mb-8">
                     <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Lead Systems Architect</h1>
                     <p class="text-lg md:text-xl text-zinc-400">Specialized in Luau Optimization & Engine Scalability.</p>
                 </div>
 
-                <div class="bg-zinc-900 border border-zinc-700 rounded-lg p-6 font-mono text-sm shadow-2xl">
+                <div class="bg-zinc-900 border border-zinc-700 rounded-lg p-6 font-mono text-sm shadow-2xl flex-1 flex flex-col" onclick="document.getElementById('cmd-input').focus()">
                     <div class="flex items-center space-x-2 mb-4 border-b border-zinc-700 pb-2">
                         <div class="w-3 h-3 rounded-full bg-red-500"></div>
                         <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
@@ -97,25 +94,21 @@
                         <span class="ml-2 text-zinc-500">grimworks_debug_console</span>
                     </div>
                     
-                    <div id="console-output" class="space-y-1 text-zinc-300 h-64 overflow-y-auto custom-scroll">
+                    <div id="console-output" class="space-y-1 text-zinc-300 flex-1 overflow-y-auto custom-scroll mb-2">
                         <div class="text-green-500">[SYSTEM] Booting Kyakz.OS Kernel...</div>
                         <div class="text-zinc-500">[INFO] Loading assets... DONE (0.04s)</div>
-                        <div class="text-zinc-500">[INFO] Connecting to Grimworks Database... SUCCESS</div>
                         <div class="text-blue-400">[AUTH] User verified: 6 Years CS Experience</div>
-                        <div class="text-yellow-400">[WARN] Legacy code detected in sector 7... PURGED</div>
-                        <div><span class="text-red-500">root@kyakz:~$</span> <span class="cursor"></span></div>
+                        <div class="text-zinc-400">Type 'help' for available commands.</div>
                     </div>
-                </div>
-                
-                <div class="mt-8 md:hidden grid grid-cols-1 gap-2">
-                     <p class="text-xs text-zinc-500 uppercase font-bold mb-2">Select Module:</p>
-                     <button onclick="bootModule('network')" class="bg-zinc-800 p-3 rounded text-left border border-zinc-700 text-white">Replication Layer</button>
-                     <button onclick="bootModule('physics')" class="bg-zinc-800 p-3 rounded text-left border border-zinc-700 text-white">Spatial Physics</button>
-                     <button onclick="bootModule('data')" class="bg-zinc-800 p-3 rounded text-left border border-zinc-700 text-white">Atomic Data</button>
+                    
+                    <div class="flex items-center text-zinc-300">
+                        <span class="text-red-500 mr-2">root@kyakz:~$</span>
+                        <input type="text" id="cmd-input" class="cmd-input" autocomplete="off" spellcheck="false">
+                    </div>
                 </div>
             </div>
 
-            <div id="network" class="hidden h-full flex flex-col max-w-5xl mx-auto">
+            <div id="network" class="hidden h-full flex flex-col max-w-6xl mx-auto">
                 <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
                         <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Replication <span class="text-red-500">//</span> Lag Compensation</h2>
@@ -129,10 +122,6 @@
 
                 <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-crosshair min-h-[300px]" id="canvas-container">
                     <canvas id="netCanvas" class="w-full h-full"></canvas>
-                    <div class="absolute top-4 left-4 pointer-events-none space-y-1">
-                        <div class="text-xs font-mono text-zinc-500">SERVER_TICK: <span id="debug-tick" class="text-white">0</span></div>
-                        <div class="text-xs font-mono text-zinc-500">BUFFER_SIZE: <span class="text-white">1024 FRAMES</span></div>
-                    </div>
                     <div class="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur p-3 rounded border border-zinc-800 flex items-center space-x-4">
                         <span class="text-xs font-bold text-red-500 whitespace-nowrap">PING:</span>
                         <input type="range" min="0" max="1000" value="0" class="w-full accent-red-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer" id="pingSlider">
@@ -140,25 +129,42 @@
                     </div>
                 </div>
 
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-32">
-                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-500">
-                        <span class="text-purple-400">function</span> <span class="text-blue-400">VerifyHit</span>(player, target)<br>
-                        &nbsp;&nbsp;<span class="text-zinc-500">-- Fails at >100ms</span><br>
-                        &nbsp;&nbsp;<span class="text-purple-400">if</span> (target.Pos - player.Aim).Mag < 5 <span class="text-purple-400">then</span><br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-green-400">return true</span><br>
-                        &nbsp;&nbsp;<span class="text-purple-400">end</span>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div id="code-net-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40">
+                        <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Standard</div>
+<pre>
+<span class="text-purple-400">function</span> <span class="text-blue-400">VerifyHit</span>(player: <span class="text-yellow-400">Player</span>, target: <span class="text-yellow-400">BasePart</span>)
+    <span class="text-zinc-500">-- Fails if ping > 100ms due to desync</span>
+    <span class="text-purple-400">local</span> currentPos = target.Position
+    <span class="text-purple-400">if</span> (currentPos - player.Character.Aim.Position).Magnitude < 5 <span class="text-purple-400">then</span>
+        <span class="text-green-400">return true</span>
+    <span class="text-purple-400">end</span>
+    <span class="text-purple-400">return false</span>
+<span class="text-purple-400">end</span>
+</pre>
                     </div>
-                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-400 relative">
-                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[10px] px-2 py-0.5 rounded-bl">ACTIVE</div>
-                         <span class="text-purple-400">local</span> pastPos = <span class="text-yellow-400">Buffer</span>:Get(now - ping)<br>
-                         <span class="text-purple-400">if</span> (pastPos - player.Aim).Mag < 5 <span class="text-purple-400">then</span><br>
-                         &nbsp;&nbsp;<span class="text-green-400">return true</span> <span class="text-zinc-500">-- Validated</span><br>
-                         <span class="text-purple-400">end</span>
+
+                    <div id="code-net-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
+                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Active</div>
+<pre>
+<span class="text-purple-400">type</span> <span class="text-yellow-400">Snapshot</span> = { t: <span class="text-yellow-400">number</span>, cf: <span class="text-yellow-400">CFrame</span> }
+<span class="text-purple-400">local</span> Buffer: { <span class="text-yellow-400">Snapshot</span> } = {} 
+
+<span class="text-purple-400">function</span> <span class="text-blue-400">RewindEngine:Verify</span>(player, target, ping)
+    <span class="text-purple-400">local</span> serverTime = <span class="text-yellow-400">workspace</span>:GetServerTimeNow()
+    <span class="text-purple-400">local</span> rewindTime = serverTime - (ping/1000)
+    
+    <span class="text-zinc-500">-- O(log n) Binary Search for historic frame</span>
+    <span class="text-purple-400">local</span> oldPos = <span class="text-blue-400">self</span>:GetInterpolatedState(target, rewindTime)
+    
+    <span class="text-purple-400">return</span> (oldPos - player.Aim).Magnitude < 5
+<span class="text-purple-400">end</span>
+</pre>
                     </div>
                 </div>
             </div>
 
-            <div id="physics" class="hidden h-full flex flex-col max-w-5xl mx-auto">
+            <div id="physics" class="hidden h-full flex flex-col max-w-6xl mx-auto">
                 <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
                         <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Spatial Physics <span class="text-red-500">//</span> Broadphase</h2>
@@ -179,22 +185,44 @@
                     </div>
                 </div>
 
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-32">
-                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-500 opacity-50">
-                        <span class="text-purple-400">for</span> i, A <span class="text-purple-400">in</span> pairs(parts) <span class="text-purple-400">do</span><br>
-                        &nbsp;&nbsp;<span class="text-purple-400">for</span> j, B <span class="text-purple-400">in</span> pairs(parts) <span class="text-purple-400">do</span><br>
-                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-zinc-500">-- EXPENSIVE LOOP</span>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div id="code-phy-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40">
+                         <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Standard</div>
+<pre>
+<span class="text-purple-400">task.spawn</span>(<span class="text-purple-400">function</span>()
+    <span class="text-purple-400">for</span> i, partA <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(allParts) <span class="text-purple-400">do</span>
+        <span class="text-purple-400">for</span> j, partB <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(allParts) <span class="text-purple-400">do</span>
+            <span class="text-zinc-500">-- CRITICAL: O(N^2) Complexity</span>
+            <span class="text-zinc-500">-- 500 parts = 250,000 checks per frame</span>
+            <span class="text-purple-400">if</span> (partA.Position - partB.Position).Magnitude < 5 <span class="text-purple-400">then</span>
+                <span class="text-blue-400">collide</span>(partA, partB)
+            <span class="text-purple-400">end</span>
+        <span class="text-purple-400">end</span>
+    <span class="text-purple-400">end</span>
+<span class="text-purple-400">end</span>)
+</pre>
                     </div>
-                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-400 relative">
-                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[10px] px-2 py-0.5 rounded-bl">ACTIVE</div>
-                         <span class="text-purple-400">local</span> cell = <span class="text-blue-400">GetCell</span>(pos)<br>
-                         <span class="text-purple-400">for</span> _, neighbor <span class="text-purple-400">in</span> pairs(Grid[cell]) <span class="text-purple-400">do</span><br>
-                         &nbsp;&nbsp;<span class="text-zinc-500">-- CHECKS NEIGHBORS ONLY</span>
+                    <div id="code-phy-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
+                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Active</div>
+<pre>
+<span class="text-purple-400">local</span> GridSize = 20
+<span class="text-purple-400">local</span> SpatialMap = {} <span class="text-zinc-500">-- Hash Map</span>
+
+<span class="text-purple-400">function</span> <span class="text-blue-400">Broadphase:Query</span>(part)
+    <span class="text-purple-400">local</span> key = <span class="text-blue-400">math.floor</span>(part.X/GridSize)..<span class="text-green-400">":"</span>..<span class="text-blue-400">math.floor</span>(part.Z/GridSize)
+    <span class="text-purple-400">local</span> neighbors = SpatialMap[key] <span class="text-purple-400">or</span> {}
+    
+    <span class="text-purple-400">for</span> _, neighbor <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(neighbors) <span class="text-purple-400">do</span>
+         <span class="text-zinc-500">-- Only checks ~5 nearby parts. O(1)</span>
+         <span class="text-blue-400">Narrowphase:Solve</span>(part, neighbor)
+    <span class="text-purple-400">end</span>
+<span class="text-purple-400">end</span>
+</pre>
                     </div>
                 </div>
             </div>
 
-            <div id="data" class="hidden h-full flex flex-col max-w-5xl mx-auto">
+            <div id="data" class="hidden h-full flex flex-col max-w-6xl mx-auto">
                 <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                     <div>
                         <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Atomic Data <span class="text-red-500">//</span> Session Locking</h2>
@@ -244,18 +272,36 @@
                     <div id="data-status" class="mt-8 font-mono text-xs md:text-sm text-zinc-500 h-6">Waiting...</div>
                 </div>
 
-                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-32">
-                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-500">
-                        from.Cash -= amount<br>
-                        <span class="text-blue-400">wait</span>(2)<br>
-                        <span class="text-red-500">-- CRASH = LOSS</span><br>
-                        to.Cash += amount
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div id="code-data-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40">
+                         <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Standard</div>
+<pre>
+<span class="text-purple-400">function</span> <span class="text-blue-400">TradeSystem:Process</span>(p1, p2, amount)
+    <span class="text-zinc-500">-- DANGEROUS: If server crashes here, funds vanish.</span>
+    p1.Leaderstats.Cash.Value -= amount
+    
+    <span class="text-blue-400">task.wait</span>(2) <span class="text-zinc-500">-- Http/DB Latency</span>
+    
+    p2.Leaderstats.Cash.Value += amount
+<span class="text-purple-400">end</span>
+</pre>
                     </div>
-                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-400 relative">
-                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[10px] px-2 py-0.5 rounded-bl">ACTIVE</div>
-                         <span class="text-yellow-400">DataStore</span>:UpdateAsync(key, <span class="text-purple-400">fn</span>(old)<br>
-                         <span class="text-purple-400">if</span> Locked <span class="text-purple-400">then return</span><br>
-                         <span class="text-zinc-500">-- SAFE ROLLBACK</span>
+                     <div id="code-data-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
+                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Active</div>
+<pre>
+<span class="text-purple-400">function</span> <span class="text-blue-400">Atomic:Transaction</span>(key, callback)
+    <span class="text-yellow-400">DataStore</span>:UpdateAsync(key, <span class="text-purple-400">function</span>(oldData)
+        <span class="text-zinc-500">-- Session Lock Check</span>
+        <span class="text-purple-400">if</span> oldData.JobId ~= <span class="text-blue-400">game</span>.JobId <span class="text-purple-400">then</span> <span class="text-purple-400">return nil</span> <span class="text-purple-400">end</span>
+        
+        <span class="text-zinc-500">-- ACID Compliance: All or Nothing</span>
+        <span class="text-purple-400">local</span> newData = <span class="text-blue-400">deepcopy</span>(oldData)
+        <span class="text-purple-400">local</span> success = <span class="text-blue-400">pcall</span>(callback, newData)
+        
+        <span class="text-purple-400">return</span> success <span class="text-purple-400">and</span> newData <span class="text-purple-400">or</span> <span class="text-purple-400">nil</span>
+    <span class="text-purple-400">end</span>)
+<span class="text-purple-400">end</span>
+</pre>
                     </div>
                 </div>
             </div>
@@ -264,47 +310,64 @@
     </main>
 
     <script>
-        // --- 1. UTILITY: High DPI Canvas Scaler ---
+        // --- 1. UTILITY ---
         function setupCanvas(canvas) {
             if(!canvas) return null;
             const ctx = canvas.getContext('2d');
             const dpr = window.devicePixelRatio || 1;
             const rect = canvas.parentElement.getBoundingClientRect();
-            
             canvas.width = rect.width * dpr;
             canvas.height = rect.height * dpr;
-            
             ctx.scale(dpr, dpr);
             return { ctx, width: rect.width, height: rect.height };
         }
 
-        // --- 2. AUDIO SYSTEM ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
+        // --- 2. TERMINAL LOGIC ---
+        (function() {
+            const input = document.getElementById('cmd-input');
+            const output = document.getElementById('console-output');
             
-            if (type === 'click') {
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-            }
-            if (type === 'error') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(100, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
-                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
-            }
-        }
+            input.addEventListener('keydown', function(e) {
+                if(e.key === 'Enter') {
+                    const cmd = this.value.trim().toLowerCase();
+                    this.value = '';
+                    log(`root@kyakz:~$ ${cmd}`, 'text-zinc-400');
+                    processCommand(cmd);
+                }
+            });
 
-        // --- 3. MODULE: NETWORK ---
+            function log(text, color = 'text-zinc-300') {
+                const div = document.createElement('div');
+                div.className = color;
+                div.textContent = text;
+                output.appendChild(div);
+                output.scrollTop = output.scrollHeight;
+            }
+
+            function processCommand(cmd) {
+                if(cmd === 'help') {
+                    log('Available commands:', 'text-yellow-400');
+                    log('  about     - System info');
+                    log('  contact   - Display email');
+                    log('  clear     - Clear terminal');
+                    log('  date      - System time');
+                    log('  rm -rf /  - Do not try this.');
+                } 
+                else if(cmd === 'clear') { output.innerHTML = ''; }
+                else if(cmd === 'about') { log('Kyakz.OS v4.3.1 - Built for Roblox High Performance.', 'text-blue-400'); }
+                else if(cmd === 'contact') { log('Email: kyakz.dev@proton.me', 'text-green-400'); }
+                else if(cmd === 'date') { log(new Date().toString(), 'text-zinc-500'); }
+                else if(cmd === 'sudo') { log('Permission denied: You are not Kyakz.', 'text-red-500'); }
+                else if(cmd === 'rm -rf /') { 
+                    log('DELETING SYSTEM...', 'text-red-600 font-bold'); 
+                    setTimeout(() => log('Just kidding. But seriously, be careful.', 'text-zinc-400'), 1000);
+                }
+                else if(cmd === '') {}
+                else { log(`Command not found: ${cmd}`, 'text-red-500'); }
+            }
+        })();
+
+        // --- 3. NETWORK ---
         (function() {
             const canvas = document.getElementById('netCanvas');
             const slider = document.getElementById('pingSlider');
@@ -318,8 +381,7 @@
             function loop() {
                 const { ctx, width, height } = setupCanvas(canvas);
                 tick++;
-                document.getElementById('debug-tick').innerText = tick;
-
+                
                 // Logic
                 target.x = width / 2 + Math.sin(tick * 0.02) * (width * 0.35);
                 target.y = height / 2 + Math.cos(tick * 0.03) * (height * 0.2);
@@ -331,30 +393,24 @@
 
                 // Draw
                 ctx.fillStyle = '#18181b'; ctx.fillRect(0, 0, width, height);
-                
-                // Grid
                 ctx.strokeStyle = '#27272a'; ctx.beginPath();
                 for(let i=0; i<width; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i,height); }
                 for(let i=0; i<height; i+=40) { ctx.moveTo(0,i); ctx.lineTo(width,i); }
                 ctx.stroke();
 
-                // Ghost
                 const ghostIndex = Math.floor(positionBuffer.length - 1 - (ping / 16));
                 const ghostPos = positionBuffer[Math.max(0, ghostIndex)] || target;
 
-                // Standard Target
                 if (algorithm === 'standard') {
                     ctx.fillStyle = '#3f3f46'; ctx.beginPath();
                     ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2); ctx.fill();
                 }
 
-                // Client Target
                 ctx.shadowBlur = 15; ctx.shadowColor = '#ef4444';
                 ctx.fillStyle = '#ef4444'; ctx.beginPath();
                 ctx.arc(ghostPos.x, ghostPos.y, target.radius, 0, Math.PI * 2); ctx.fill();
                 ctx.shadowBlur = 0;
 
-                // Particles
                 particles.forEach((p, i) => {
                     p.life--;
                     ctx.fillStyle = p.color; ctx.globalAlpha = p.life / 30;
@@ -362,14 +418,11 @@
                     if (p.life <= 0) particles.splice(i, 1);
                 });
                 ctx.globalAlpha = 1;
-
                 requestAnimationFrame(loop);
             }
             loop();
 
-            // Click Handler
             canvas.addEventListener('mousedown', (e) => {
-                playSound('click');
                 const rect = canvas.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
@@ -395,34 +448,48 @@
 
             window.setAlgo = function(type) {
                 algorithm = type;
-                playSound('click');
                 const btnStd = document.getElementById('btn-algo-std');
                 const btnKyakz = document.getElementById('btn-algo-kyakz');
-                const active = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
-                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-                if(type === 'standard') { btnStd.className = active; btnKyakz.className = inactive; }
-                else { btnStd.className = inactive; btnKyakz.className = active; }
+                const codeStd = document.getElementById('code-net-std');
+                const codeKyakz = document.getElementById('code-net-kyakz');
+
+                const activeBtn = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
+                const inactiveBtn = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+                
+                if(type === 'standard') { 
+                    btnStd.className = activeBtn; btnKyakz.className = inactiveBtn; 
+                    codeStd.className = "code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40";
+                    codeKyakz.className = "code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40";
+                } else { 
+                    btnStd.className = inactiveBtn; btnKyakz.className = activeBtn; 
+                    codeStd.className = "code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40";
+                    codeKyakz.className = "code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40";
+                }
             };
         })();
 
-        // --- 4. MODULE: PHYSICS ---
+        // --- 4. PHYSICS ---
         (function() {
             const canvas = document.getElementById('phyCanvas');
             const statsChecks = document.getElementById('phy-checks');
             const statsOpt = document.getElementById('phy-opt');
             let mode = 'standard';
-            const particles = Array.from({length: 250}, () => ({
-                x: Math.random() * 800, y: Math.random() * 600,
-                vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2
-            }));
+            // Init with 0, will fill on resize
+            let particles = [];
+            
+            function initParticles(w, h) {
+                particles = Array.from({length: 250}, () => ({
+                    x: Math.random() * w, y: Math.random() * h,
+                    vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2
+                }));
+            }
 
             function loop() {
                 const { ctx, width, height } = setupCanvas(canvas);
-                
-                // Physics Update
+                if(particles.length === 0) initParticles(width, height);
+
                 particles.forEach(p => {
                     p.x += p.vx; p.y += p.vy;
-                    // Wall Bounce & Clamp
                     if(p.x < 0) { p.x = 0; p.vx *= -1; }
                     if(p.x > width) { p.x = width; p.vx *= -1; }
                     if(p.y < 0) { p.y = 0; p.vy *= -1; }
@@ -499,22 +566,27 @@
 
             window.setPhyAlgo = function(type) {
                 mode = type;
-                playSound('click');
                 const btnStd = document.getElementById('btn-phy-std');
                 const btnKyakz = document.getElementById('btn-phy-kyakz');
-                const active = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
-                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+                const codeStd = document.getElementById('code-phy-std');
+                const codeKyakz = document.getElementById('code-phy-kyakz');
+                
+                const activeBtn = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
+                const inactiveBtn = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+                
                 if(type === 'standard') { 
-                    btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all"; 
-                    btnKyakz.className = inactive; 
+                    btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all"; btnKyakz.className = inactiveBtn; 
+                    codeStd.className = "code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40";
+                    codeKyakz.className = "code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40";
                 } else { 
-                    btnStd.className = inactive; 
-                    btnKyakz.className = active; 
+                    btnStd.className = inactiveBtn; btnKyakz.className = activeBtn; 
+                    codeStd.className = "code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40";
+                    codeKyakz.className = "code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40";
                 }
             };
         })();
 
-        // --- 5. MODULE: DATA ---
+        // --- 5. DATA ---
         (function() {
             let mode = 'standard';
             let walletA = 1000;
@@ -526,39 +598,75 @@
             const elB = document.getElementById('wallet-b-val');
             const packet = document.getElementById('data-packet');
             const status = document.getElementById('data-status');
-            const bgA = document.getElementById('wallet-a-bg');
             const crashBtn = document.getElementById('btn-crash');
 
-            function updateUI() { elA.innerText = walletA; elB.innerText = walletB; }
+            function animateValue(obj, start, end, duration) {
+                let startTimestamp = null;
+                const step = (timestamp) => {
+                    if (!startTimestamp) startTimestamp = timestamp;
+                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                    obj.innerHTML = Math.floor(progress * (end - start) + start);
+                    if (progress < 1) {
+                        window.requestAnimationFrame(step);
+                    }
+                };
+                window.requestAnimationFrame(step);
+            }
+
+            function updateUI(prevA, prevB) {
+                animateValue(elA, prevA, walletA, 500);
+                animateValue(elB, prevB, walletB, 500);
+            }
+
+            function resetPacket() {
+                 packet.style.transition = 'none';
+                 packet.style.left = '0%';
+                 packet.style.opacity = '0';
+                 packet.className = "w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black";
+                 // Force reflow
+                 void packet.offsetWidth;
+            }
 
             function reset() {
-                walletA = 1000; walletB = 0; updateUI();
-                packet.style.opacity = '0'; packet.style.left = '0%';
-                packet.className = "w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black transition-all duration-100";
+                walletA = 1000; walletB = 0; 
+                elA.innerText = 1000; elB.innerText = 0;
+                resetPacket();
                 inProgress = false; crashed = false;
                 status.innerText = "Ready."; status.className = "mt-8 font-mono text-xs md:text-sm text-zinc-500 h-6";
-                bgA.style.borderColor = "#52525b";
                 crashBtn.classList.add('btn-disabled');
-                crashBtn.classList.remove('hover:bg-red-600', 'hover:text-white');
             }
 
             window.startTransaction = function() {
                 if(inProgress) return;
-                playSound('click');
-                if(walletA < 500) reset();
-                inProgress = true; crashed = false;
                 
-                crashBtn.classList.remove('btn-disabled');
-                crashBtn.classList.add('hover:bg-red-600', 'hover:text-white');
+                // Auto replenish if empty
+                if(walletA < 500) {
+                    const oldA = walletA;
+                    walletA = 1000; 
+                    animateValue(elA, oldA, 1000, 500);
+                    return; // Wait for user to click again or auto trigger? Let's just replenish.
+                }
 
-                walletA -= 500; updateUI();
+                inProgress = true; crashed = false;
+                resetPacket();
+                crashBtn.classList.remove('btn-disabled');
+
+                const prevA = walletA;
+                walletA -= 500;
+                animateValue(elA, prevA, walletA, 500);
+
                 status.innerText = "Sending..."; status.className = "mt-8 font-mono text-xs md:text-sm text-blue-400 h-6";
-                packet.style.opacity = '1'; packet.style.transition = 'left 3s linear';
-                setTimeout(() => { packet.style.left = '100%'; }, 50);
+                
+                // Start Animation
+                packet.style.opacity = '1';
+                packet.style.transition = 'left 3s linear';
+                packet.style.left = '100%';
 
                 window.transactionTimer = setTimeout(() => {
                     if(!crashed) {
-                        walletB += 500; updateUI();
+                        const prevB = walletB;
+                        walletB += 500;
+                        animateValue(elB, prevB, walletB, 500);
                         status.innerText = "SUCCESS."; status.className = "mt-8 font-mono text-xs md:text-sm text-green-500 h-6";
                         packet.style.opacity = '0'; inProgress = false;
                         crashBtn.classList.add('btn-disabled');
@@ -568,7 +676,6 @@
 
             window.simulateCrash = function() {
                 if(!inProgress) return;
-                playSound('error');
                 crashed = true;
                 clearTimeout(window.transactionTimer);
                 
@@ -588,9 +695,11 @@
                         status.innerText = "ATOMIC: Rolling back..."; status.className = "mt-8 font-mono text-xs md:text-sm text-yellow-500 h-6";
                         packet.style.transition = 'left 1s ease-out'; packet.style.left = '0%';
                         setTimeout(() => {
-                            walletA += 500; updateUI();
+                            const prevA = walletA;
+                            walletA += 500; 
+                            animateValue(elA, prevA, walletA, 500);
                             status.innerText = "SAFE: Refunded."; status.className = "mt-8 font-mono text-xs md:text-sm text-green-500 h-6";
-                            bgA.style.borderColor = "#22c55e"; packet.style.opacity = '0'; inProgress = false;
+                            packet.style.opacity = '0'; inProgress = false;
                         }, 1000);
                     }
                     crashBtn.classList.add('btn-disabled');
@@ -600,48 +709,43 @@
             window.setDataAlgo = function(type) {
                 mode = type;
                 reset();
-                playSound('click');
                 const btnStd = document.getElementById('btn-data-std');
                 const btnKyakz = document.getElementById('btn-data-kyakz');
-                const active = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
-                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+                const codeStd = document.getElementById('code-data-std');
+                const codeKyakz = document.getElementById('code-data-kyakz');
+
+                const activeBtn = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
+                const inactiveBtn = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+                
                 if(type === 'standard') { 
-                    btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all"; 
-                    btnKyakz.className = inactive; 
+                    btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all"; btnKyakz.className = inactiveBtn; 
+                    codeStd.className = "code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40";
+                    codeKyakz.className = "code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40";
                 } else { 
-                    btnStd.className = inactive; 
-                    btnKyakz.className = active; 
+                    btnStd.className = inactiveBtn; btnKyakz.className = activeBtn; 
+                    codeStd.className = "code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40";
+                    codeKyakz.className = "code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40";
                 }
             };
         })();
 
-        // --- 6. SYSTEM BOOT ---
+        // --- 6. BOOT ---
         const memDisplay = document.getElementById('status-mem');
         setInterval(() => { memDisplay.innerText = `MEM: ${Math.floor(Math.random() * 5 + 12)}MB`; }, 2000);
 
         function bootModule(moduleId) {
-            playSound('click');
-            // Reset active states
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('bg-zinc-800', 'border-red-500', 'text-white');
                 btn.classList.add('border-transparent', 'text-zinc-400');
             });
-
-            // Set Active
-            const navId = 'nav-' + moduleId;
-            const btn = document.getElementById(navId);
+            const btn = document.getElementById('nav-' + moduleId);
             if(btn) {
                 btn.classList.add('bg-zinc-800', 'border-red-500', 'text-white');
                 btn.classList.remove('border-transparent', 'text-zinc-400');
             }
-
-            // Toggle Sections
-            ['terminal', 'network', 'physics', 'data'].forEach(id => {
-                document.getElementById(id).classList.add('hidden');
-            });
+            ['terminal', 'network', 'physics', 'data'].forEach(id => document.getElementById(id).classList.add('hidden'));
             document.getElementById(moduleId).classList.remove('hidden');
-
-            console.log(`[SYSTEM] Booting module: ${moduleId}`);
+            if (moduleId === 'network') window.dispatchEvent(new Event('resize'));
         }
     </script>
 </body>
