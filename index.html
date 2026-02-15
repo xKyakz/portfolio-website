@@ -3,38 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kyakz | Lead Scripter, 3D Artist, & Game Manager</title>
+    <title>KYAKZ // SYSTEMS ARCHITECT</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'JetBrains Mono', monospace; }
+        
+        /* The "Scanline" Effect */
+        .scanline {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px;
+            position: fixed; pointer-events: none;
+            top: 0; left: 0; right: 0; bottom: 0; z-index: 50;
+        }
+
+        /* The Blinking Cursor */
+        .cursor::after {
+            content: '█';
+            animation: blink 1s step-end infinite;
+            color: #ef4444; /* Red Cursor */
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Scrollbar Hiding */
+        ::-webkit-scrollbar { width: 8px; background: #18181b; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+    </style>
 </head>
-<body class="bg-zinc-900 text-zinc-100 font-sans selection:bg-red-500">
+<body class="bg-zinc-950 text-zinc-300 overflow-hidden h-screen flex flex-col selection:bg-red-900 selection:text-white">
 
-    <nav class="max-w-5xl mx-auto p-6 flex justify-between items-center border-b border-zinc-800">
-        <h1 class="text-xl font-black tracking-tighter text-white">KYAKZ</h1>
-        <div class="space-x-8 text-sm font-medium text-zinc-400">
-            <a href="#projects" class="hover:text-red-500 transition-colors">Projects</a>
-            <a href="#skills" class="hover:text-red-500 transition-colors">Technical Skills</a>
-            <a href="https://github.com/xKyakz" class="hover:text-white underline decoration-zinc-700">GitHub</a>
+    <div class="scanline"></div>
+
+    <header class="h-12 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/50">
+        <div class="flex items-center space-x-4">
+            <span class="text-red-500 font-bold tracking-widest">KYAKZ.OS</span>
+            <span class="text-xs text-zinc-500">// KERNEL v4.2</span>
         </div>
-    </nav>
-
-    <header class="max-w-5xl mx-auto px-6 py-24">
-        <h2 class="text-6xl font-extrabold text-white mb-6">Building the next <br><span class="text-red-600">big ass game.</span>.</h2>
-        <p class="text-xl text-zinc-400 max-w-2xl leading-relaxed">
-            Lead Scripter at <span class="text-zinc-100">Grimworks</span> with really good experience. Currently developing <span class="text-zinc-100 italic">Grimworks</span> and doing stuff in Luau.
-        </p>
+        <div class="flex items-center space-x-6 text-xs text-zinc-500 font-bold">
+            <div id="status-mem">MEM: 14MB</div>
+            <div id="status-net">NET: CONNECTED</div>
+            <div class="text-red-500">LIVE</div>
+        </div>
     </header>
 
-    <main id="projects" class="max-w-5xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div class="group bg-zinc-800/50 p-8 rounded-2xl border border-zinc-800 hover:border-red-900/50 transition-all">
-            <h3 class="text-2xl font-bold text-white mb-2 group-hover:text-red-500">Grimworks</h3>
-            <p class="text-zinc-400 leading-snug">Lead Scripter for a 1v6+ FNaF asym experience. Implementing cool shit, amazing stuff, and better systems.</p>
-        </div>
+    <main class="flex-1 flex">
+        
+        <aside class="w-64 border-r border-zinc-800 flex flex-col bg-zinc-900/20">
+            <div class="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Modules</div>
+            
+            <nav class="flex-1 space-y-1 px-2">
+                <button onclick="bootModule('terminal')" class="w-full text-left px-3 py-2 text-sm text-white bg-zinc-800 rounded border-l-2 border-red-500 hover:bg-zinc-800 transition-all">
+                    > ./terminal.lua
+                </button>
+                <button onclick="bootModule('network')" class="w-full text-left px-3 py-2 text-sm text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded border-l-2 border-transparent transition-all">
+                    > ./replication.lua
+                </button>
+                <button onclick="bootModule('physics')" class="w-full text-left px-3 py-2 text-sm text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded border-l-2 border-transparent transition-all">
+                    > ./spatial_hash.lua
+                </button>
+                <button onclick="bootModule('data')" class="w-full text-left px-3 py-2 text-sm text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded border-l-2 border-transparent transition-all">
+                    > ./atomic_data.lua
+                </button>
+            </nav>
 
-        <div class="group bg-zinc-800/50 p-8 rounded-2xl border border-zinc-800 hover:border-blue-900/50 transition-all">
-            <h3 class="text-2xl font-bold text-white mb-2 group-hover:text-blue-400">Grimworksss</h3>
-            <p class="text-zinc-400 leading-snug">I'm doing some cool stuff in Luau and working on systems for Grimworks. I'm really good at it. I guess.</p>
-        </div>
+            <div class="p-4 border-t border-zinc-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-red-600 rounded flex items-center justify-center text-white font-bold">K</div>
+                    <div>
+                        <div class="text-sm font-bold text-white">User: Kyakz</div>
+                        <div class="text-xs text-zinc-500">Perms: ADMIN</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <section id="viewport" class="flex-1 bg-black/50 p-10 relative overflow-y-auto">
+            
+            <div id="terminal" class="max-w-3xl">
+                <div class="mb-8">
+                    <h1 class="text-5xl font-bold text-white mb-2">Lead Systems Architect</h1>
+                    <p class="text-xl text-zinc-400">Specialized in Luau Optimization & Engine Scalability.</p>
+                </div>
+
+                <div class="bg-zinc-900 border border-zinc-700 rounded-lg p-6 font-mono text-sm shadow-2xl">
+                    <div class="flex items-center space-x-2 mb-4 border-b border-zinc-700 pb-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span class="ml-2 text-zinc-500">grimworks_debug_console</span>
+                    </div>
+                    
+                    <div id="console-output" class="space-y-1 text-zinc-300 h-64 overflow-y-auto">
+                        <div class="text-green-500">[SYSTEM] Booting Kyakz.OS Kernel...</div>
+                        <div class="text-zinc-500">[INFO] Loading assets... DONE (0.04s)</div>
+                        <div class="text-zinc-500">[INFO] Connecting to Grimworks Database... SUCCESS</div>
+                        <div class="text-blue-400">[AUTH] User verified: 6 Years CS Experience</div>
+                        <div class="text-yellow-400">[WARN] Legacy code detected in sector 7... PURGED</div>
+                        <div><span class="text-red-500">root@kyakz:~$</span> <span class="cursor"></span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="network" class="hidden">
+                <h2 class="text-3xl font-bold text-white mb-4">Replication Layer <span class="text-red-500">//</span></h2>
+                <div class="border border-dashed border-zinc-700 rounded-xl h-96 flex items-center justify-center bg-zinc-900/30">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">📡</div>
+                        <h3 class="text-xl font-bold text-zinc-300">Bit-Buffer Stream Visualizer</h3>
+                        <p class="text-zinc-500 mt-2">Interactive Demo Loading...</p>
+                        <p class="text-xs text-zinc-600 mt-4 font-mono">STATUS: PENDING DEPLOYMENT</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="physics" class="hidden">
+                <h2 class="text-3xl font-bold text-white mb-4">Spatial Physics <span class="text-red-500">//</span></h2>
+                <div class="border border-dashed border-zinc-700 rounded-xl h-96 flex items-center justify-center bg-zinc-900/30">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">🧊</div>
+                        <h3 class="text-xl font-bold text-zinc-300">Octree Partitioning Demo</h3>
+                        <p class="text-zinc-500 mt-2">O(1) Collision System Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+             <div id="data" class="hidden">
+                <h2 class="text-3xl font-bold text-white mb-4">Atomic Data <span class="text-red-500">//</span></h2>
+                <div class="border border-dashed border-zinc-700 rounded-xl h-96 flex items-center justify-center bg-zinc-900/30">
+                    <div class="text-center">
+                        <div class="text-4xl mb-4">💾</div>
+                        <h3 class="text-xl font-bold text-zinc-300">Session Locking & Rollbacks</h3>
+                        <p class="text-zinc-500 mt-2">Transaction Visualizer Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
     </main>
 
+    <script>
+        // Simulate System Noise
+        const memDisplay = document.getElementById('status-mem');
+        setInterval(() => {
+            memDisplay.innerText = `MEM: ${Math.floor(Math.random() * 5 + 12)}MB`;
+        }, 2000);
+
+        // Tab Switching Logic
+        function bootModule(moduleId) {
+            // Hide all modules
+            ['terminal', 'network', 'physics', 'data'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            
+            // Show selected module
+            document.getElementById(moduleId).classList.remove('hidden');
+
+            // Add a "boot up" glitch effect here later
+            console.log(`[SYSTEM] Booting module: ${moduleId}`);
+        }
+    </script>
 </body>
 </html>
