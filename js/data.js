@@ -1,3 +1,4 @@
+// --- 5. DATA ---
 (function() {
     let mode = 'standard';
     let walletA = 1000;
@@ -10,6 +11,8 @@
     const packet = document.getElementById('data-packet');
     const status = document.getElementById('data-status');
     const crashBtn = document.getElementById('btn-crash');
+
+    if(!elA) return;
 
     function animateValue(obj, start, end, duration) {
         let startTimestamp = null;
@@ -30,12 +33,11 @@
     }
 
     function resetPacket() {
-            packet.style.transition = 'none';
-            packet.style.left = '0%';
-            packet.style.opacity = '0';
-            packet.className = "w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black";
-            // Force reflow
-            void packet.offsetWidth;
+         packet.style.transition = 'none';
+         packet.style.left = '0%';
+         packet.style.opacity = '0';
+         packet.className = "w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black";
+         void packet.offsetWidth;
     }
 
     function reset() {
@@ -50,12 +52,11 @@
     window.startTransaction = function() {
         if(inProgress) return;
         
-        // Auto replenish if empty
         if(walletA < 500) {
             const oldA = walletA;
             walletA = 1000; 
             animateValue(elA, oldA, 1000, 500);
-            return; // Wait for user to click again or auto trigger? Let's just replenish.
+            return; 
         }
 
         inProgress = true; crashed = false;
@@ -68,7 +69,6 @@
 
         status.innerText = "Sending..."; status.className = "mt-8 font-mono text-xs md:text-sm text-blue-400 h-6";
         
-        // Start Animation
         packet.style.opacity = '1';
         packet.style.transition = 'left 3s linear';
         packet.style.left = '100%';

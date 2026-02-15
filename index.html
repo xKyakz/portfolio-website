@@ -29,9 +29,6 @@
         
         /* Terminal Input */
         .cmd-input { background: transparent; border: none; outline: none; color: white; width: 100%; font-family: inherit; }
-        
-        /* Canvas Cursor */
-        canvas { touch-action: none; }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-300 overflow-hidden h-screen flex flex-col selection:bg-red-900 selection:text-white">
@@ -68,15 +65,6 @@
                 <button onclick="bootModule('data')" id="nav-data" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
                     > ./atomic_data.lua
                 </button>
-                <button onclick="bootModule('ai')" id="nav-ai" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
-                    > ./flow_fields.lua
-                </button>
-                <button onclick="bootModule('security')" id="nav-security" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
-                    > ./heuristic_scan.lua
-                </button>
-                <button onclick="bootModule('procedural')" id="nav-procedural" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
-                    > ./chunk_marshal.lua
-                </button>
             </nav>
 
             <div class="p-4 border-t border-zinc-800">
@@ -97,6 +85,7 @@
                     <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Lead Systems Architect</h1>
                     <p class="text-lg md:text-xl text-zinc-400">Specialized in Luau Optimization & Engine Scalability.</p>
                 </div>
+
                 <div class="bg-zinc-900 border border-zinc-700 rounded-lg p-6 font-mono text-sm shadow-2xl flex-1 flex flex-col" onclick="document.getElementById('cmd-input').focus()">
                     <div class="flex items-center space-x-2 mb-4 border-b border-zinc-700 pb-2">
                         <div class="w-3 h-3 rounded-full bg-red-500"></div>
@@ -104,12 +93,14 @@
                         <div class="w-3 h-3 rounded-full bg-green-500"></div>
                         <span class="ml-2 text-zinc-500">grimworks_debug_console</span>
                     </div>
+                    
                     <div id="console-output" class="space-y-1 text-zinc-300 flex-1 overflow-y-auto custom-scroll mb-2">
                         <div class="text-green-500">[SYSTEM] Booting Kyakz.OS Kernel...</div>
                         <div class="text-zinc-500">[INFO] Loading assets... DONE (0.04s)</div>
                         <div class="text-blue-400">[AUTH] User verified: 6 Years CS Experience</div>
                         <div class="text-zinc-400">Type 'help' for available commands.</div>
                     </div>
+                    
                     <div class="flex items-center text-zinc-300">
                         <span class="text-red-500 mr-2">root@kyakz:~$</span>
                         <input type="text" id="cmd-input" class="cmd-input" autocomplete="off" spellcheck="false">
@@ -128,6 +119,7 @@
                         <button id="btn-algo-kyakz" onclick="setAlgo('kyakz')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">KYAKZ REWIND</button>
                     </div>
                 </div>
+
                 <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-crosshair min-h-[300px]" id="canvas-container">
                     <canvas id="netCanvas" class="w-full h-full"></canvas>
                     <div class="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur p-3 rounded border border-zinc-800 flex items-center space-x-4">
@@ -136,25 +128,38 @@
                         <span class="text-xs font-mono text-white w-16 text-right"><span id="pingValue">0</span>ms</span>
                     </div>
                 </div>
-                </div>
+
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div id="code-net-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40">
                         <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Standard</div>
-<pre><span class="text-purple-400">function</span> <span class="text-blue-400">VerifyHit</span>(player, target)
-    <span class="text-zinc-500">-- Fails if ping > 100ms</span>
-    <span class="text-purple-400">if</span> (target.Pos - player.Aim).Mag < 5 <span class="text-purple-400">then</span>
+<pre>
+<span class="text-purple-400">function</span> <span class="text-blue-400">VerifyHit</span>(player: <span class="text-yellow-400">Player</span>, target: <span class="text-yellow-400">BasePart</span>)
+    <span class="text-zinc-500">-- Fails if ping > 100ms due to desync</span>
+    <span class="text-purple-400">local</span> currentPos = target.Position
+    <span class="text-purple-400">if</span> (currentPos - player.Character.Aim.Position).Magnitude < 5 <span class="text-purple-400">then</span>
         <span class="text-green-400">return true</span>
     <span class="text-purple-400">end</span>
-<span class="text-purple-400">end</span></pre>
+    <span class="text-purple-400">return false</span>
+<span class="text-purple-400">end</span>
+</pre>
                     </div>
+
                     <div id="code-net-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
                          <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Active</div>
-<pre><span class="text-purple-400">function</span> <span class="text-blue-400">Rewind:Verify</span>(player, target, ping)
-    <span class="text-purple-400">local</span> t = now - (ping/1000)
-    <span class="text-zinc-500">-- Binary Search Historic Frame</span>
-    <span class="text-purple-400">local</span> oldPos = <span class="text-blue-400">self</span>:GetState(target, t)
-    <span class="text-purple-400">return</span> (oldPos - player.Aim).Mag < 5
-<span class="text-purple-400">end</span></pre>
+<pre>
+<span class="text-purple-400">type</span> <span class="text-yellow-400">Snapshot</span> = { t: <span class="text-yellow-400">number</span>, cf: <span class="text-yellow-400">CFrame</span> }
+<span class="text-purple-400">local</span> Buffer: { <span class="text-yellow-400">Snapshot</span> } = {} 
+
+<span class="text-purple-400">function</span> <span class="text-blue-400">RewindEngine:Verify</span>(player, target, ping)
+    <span class="text-purple-400">local</span> serverTime = <span class="text-yellow-400">workspace</span>:GetServerTimeNow()
+    <span class="text-purple-400">local</span> rewindTime = serverTime - (ping/1000)
+    
+    <span class="text-zinc-500">-- O(log n) Binary Search for historic frame</span>
+    <span class="text-purple-400">local</span> oldPos = <span class="text-blue-400">self</span>:GetInterpolatedState(target, rewindTime)
+    
+    <span class="text-purple-400">return</span> (oldPos - player.Aim).Magnitude < 5
+<span class="text-purple-400">end</span>
+</pre>
                     </div>
                 </div>
             </div>
@@ -170,6 +175,7 @@
                         <button id="btn-phy-kyakz" onclick="setPhyAlgo('spatial')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">SPATIAL O(1)</button>
                     </div>
                 </div>
+
                 <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden min-h-[300px]" id="phy-canvas-container">
                     <canvas id="phyCanvas" class="w-full h-full"></canvas>
                     <div class="absolute top-4 left-4 pointer-events-none space-y-1">
@@ -178,27 +184,40 @@
                         <div class="text-xs font-mono text-zinc-500">OPT: <span id="phy-opt" class="text-white">0%</span></div>
                     </div>
                 </div>
-                 <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div id="code-phy-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40">
-                          <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Standard</div>
-<pre><span class="text-purple-400">for</span> i, partA <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(allParts) <span class="text-purple-400">do</span>
-    <span class="text-purple-400">for</span> j, partB <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(allParts) <span class="text-purple-400">do</span>
-        <span class="text-zinc-500">-- CRITICAL: O(N^2) Complexity</span>
-        <span class="text-purple-400">if</span> (partA.Pos - partB.Pos).Mag < 5 <span class="text-purple-400">then</span>
-            <span class="text-blue-400">collide</span>(partA, partB)
+
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div id="code-phy-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40">
+                         <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Standard</div>
+<pre>
+<span class="text-purple-400">task.spawn</span>(<span class="text-purple-400">function</span>()
+    <span class="text-purple-400">for</span> i, partA <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(allParts) <span class="text-purple-400">do</span>
+        <span class="text-purple-400">for</span> j, partB <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(allParts) <span class="text-purple-400">do</span>
+            <span class="text-zinc-500">-- CRITICAL: O(N^2) Complexity</span>
+            <span class="text-zinc-500">-- 500 parts = 250,000 checks per frame</span>
+            <span class="text-purple-400">if</span> (partA.Position - partB.Position).Magnitude < 5 <span class="text-purple-400">then</span>
+                <span class="text-blue-400">collide</span>(partA, partB)
+            <span class="text-purple-400">end</span>
         <span class="text-purple-400">end</span>
     <span class="text-purple-400">end</span>
-<span class="text-purple-400">end</span></pre>
+<span class="text-purple-400">end</span>)
+</pre>
                     </div>
                     <div id="code-phy-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
                          <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Active</div>
-<pre><span class="text-purple-400">local</span> key = <span class="text-blue-400">math.floor</span>(x/20)..<span class="text-green-400">":"</span>..<span class="text-blue-400">math.floor</span>(z/20)
-<span class="text-purple-400">local</span> neighbors = SpatialMap[key] <span class="text-purple-400">or</span> {}
+<pre>
+<span class="text-purple-400">local</span> GridSize = 20
+<span class="text-purple-400">local</span> SpatialMap = {} <span class="text-zinc-500">-- Hash Map</span>
 
-<span class="text-purple-400">for</span> _, neighbor <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(neighbors) <span class="text-purple-400">do</span>
-     <span class="text-zinc-500">-- Only checks ~5 nearby parts. O(1)</span>
-     <span class="text-blue-400">Narrowphase:Solve</span>(part, neighbor)
-<span class="text-purple-400">end</span></pre>
+<span class="text-purple-400">function</span> <span class="text-blue-400">Broadphase:Query</span>(part)
+    <span class="text-purple-400">local</span> key = <span class="text-blue-400">math.floor</span>(part.X/GridSize)..<span class="text-green-400">":"</span>..<span class="text-blue-400">math.floor</span>(part.Z/GridSize)
+    <span class="text-purple-400">local</span> neighbors = SpatialMap[key] <span class="text-purple-400">or</span> {}
+    
+    <span class="text-purple-400">for</span> _, neighbor <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(neighbors) <span class="text-purple-400">do</span>
+         <span class="text-zinc-500">-- Only checks ~5 nearby parts. O(1)</span>
+         <span class="text-blue-400">Narrowphase:Solve</span>(part, neighbor)
+    <span class="text-purple-400">end</span>
+<span class="text-purple-400">end</span>
+</pre>
                     </div>
                 </div>
             </div>
@@ -214,7 +233,9 @@
                         <button id="btn-data-kyakz" onclick="setDataAlgo('atomic')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">ATOMIC</button>
                     </div>
                 </div>
+
                 <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden flex flex-col items-center justify-center min-h-[400px]">
+                    
                     <div class="flex items-center justify-between w-full max-w-2xl px-4 md:px-10 relative z-10">
                         <div class="text-center">
                             <div class="w-16 h-16 md:w-24 md:h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-2xl md:text-3xl mb-2 relative transition-all duration-300" id="wallet-a-bg">
@@ -223,11 +244,13 @@
                             </div>
                             <div class="font-mono text-lg md:text-xl font-bold text-white">$<span id="wallet-a-val">1000</span></div>
                         </div>
+
                         <div class="flex-1 h-1 bg-zinc-700 mx-4 md:mx-8 relative">
                             <div id="data-packet" class="w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black opacity-0">
                                 $
                             </div>
                         </div>
+
                         <div class="text-center">
                             <div class="w-16 h-16 md:w-24 md:h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-2xl md:text-3xl mb-2" id="wallet-b-bg">
                                 🏦
@@ -236,6 +259,7 @@
                             <div class="font-mono text-lg md:text-xl font-bold text-white">$<span id="wallet-b-val">0</span></div>
                         </div>
                     </div>
+
                     <div class="mt-12 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                         <button onclick="startTransaction()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded shadow-lg transition-all text-xs md:text-sm">
                             INITIATE TRANSFER
@@ -244,99 +268,40 @@
                             ⚠ SIMULATE CRASH
                         </button>
                     </div>
+
                     <div id="data-status" class="mt-8 font-mono text-xs md:text-sm text-zinc-500 h-6">Waiting...</div>
                 </div>
-                 <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div id="code-data-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40">
-                          <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Standard</div>
-<pre><span class="text-purple-400">function</span> <span class="text-blue-400">Process</span>(p1, p2, amount)
-    <span class="text-zinc-500">-- DANGEROUS: If server crashes here...</span>
-    p1.Cash.Value -= amount
-    <span class="text-blue-400">task.wait</span>(2) <span class="text-zinc-500">-- Latency</span>
-    <span class="text-zinc-500">-- Funds vanish if crash happens above</span>
-    p2.Cash.Value += amount
-<span class="text-purple-400">end</span></pre>
-                    </div>
-                      <div id="code-data-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
-                          <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Active</div>
-<pre><span class="text-yellow-400">DataStore</span>:UpdateAsync(key, <span class="text-purple-400">function</span>(old)
-    <span class="text-purple-400">if</span> old.JobId ~= <span class="text-blue-400">game</span>.JobId <span class="text-purple-400">then</span> <span class="text-purple-400">return</span> <span class="text-purple-400">end</span>
-    <span class="text-zinc-500">-- ACID Compliance: All or Nothing</span>
-    <span class="text-purple-400">local</span> new = <span class="text-blue-400">deepcopy</span>(old)
-    <span class="text-purple-400">local</span> ok = <span class="text-blue-400">pcall</span>(fn, new)
-    <span class="text-purple-400">return</span> ok <span class="text-purple-400">and</span> new <span class="text-purple-400">or</span> <span class="text-purple-400">nil</span>
-<span class="text-purple-400">end</span>)</pre>
-                    </div>
-                </div>
-            </div>
 
-            <div id="ai" class="hidden h-full flex flex-col max-w-6xl mx-auto">
-                <div class="mb-6">
-                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Flow Field Nav <span class="text-red-500">//</span> Swarm AI</h2>
-                    <p class="text-zinc-400 text-sm">Vector-based pathfinding for mass entities. 1 calculation for 1000 agents.</p>
-                </div>
-                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden min-h-[300px] cursor-crosshair">
-                    <canvas id="aiCanvas" class="w-full h-full"></canvas>
-                    <div class="absolute top-4 right-4 bg-black/80 backdrop-blur p-3 rounded border border-zinc-800 text-right">
-                        <div class="text-xs font-mono text-zinc-500">AGENTS</div>
-                        <div class="text-xl font-bold text-white">500</div>
-                        <div class="text-xs font-mono text-zinc-500 mt-2">COMPUTE</div>
-                        <div class="text-xl font-bold text-green-500">0.5ms</div>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <div id="code-data-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40">
+                         <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Standard</div>
+<pre>
+<span class="text-purple-400">function</span> <span class="text-blue-400">TradeSystem:Process</span>(p1, p2, amount)
+    <span class="text-zinc-500">-- DANGEROUS: If server crashes here, funds vanish.</span>
+    p1.Leaderstats.Cash.Value -= amount
+    
+    <span class="text-blue-400">task.wait</span>(2) <span class="text-zinc-500">-- Http/DB Latency</span>
+    
+    p2.Leaderstats.Cash.Value += amount
+<span class="text-purple-400">end</span>
+</pre>
                     </div>
-                    <div class="absolute bottom-4 left-4 text-xs font-mono text-zinc-500 bg-black/50 px-2 py-1 rounded">
-                        [LMB] Place/Remove Walls
-                    </div>
-                </div>
-            </div>
-
-            <div id="security" class="hidden h-full flex flex-col max-w-6xl mx-auto">
-                <div class="mb-6">
-                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Heuristics <span class="text-red-500">//</span> Anti-Exploit</h2>
-                    <p class="text-zinc-400 text-sm">Vector probability analysis to distinguish lag from cheats.</p>
-                </div>
-                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden min-h-[300px] flex flex-col md:flex-row">
-                    <div class="flex-1 relative">
-                        <canvas id="secCanvas" class="w-full h-full"></canvas>
-                        <div id="sec-flag" class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-6xl font-black text-red-600 border-4 border-red-600 p-4 rotate-[-15deg] opacity-0 transition-opacity pointer-events-none uppercase">
-                            DETECTED
-                        </div>
-                    </div>
-                    <div class="w-full md:w-64 bg-zinc-900 border-t md:border-t-0 md:border-l border-zinc-800 p-4 flex flex-col gap-4">
-                        <div class="p-3 bg-black/40 rounded border border-zinc-800">
-                            <div class="text-xs text-zinc-500 mb-1">VELOCITY</div>
-                            <div id="sec-vel" class="text-2xl font-mono text-white">0.00</div>
-                        </div>
-                        <div class="p-3 bg-black/40 rounded border border-zinc-800">
-                            <div class="text-xs text-zinc-500 mb-1">VARIANCE SCORE</div>
-                            <div id="sec-var" class="text-2xl font-mono text-white">0.00</div>
-                        </div>
-                        <div class="flex-1"></div>
-                        <button onclick="triggerLag()" class="w-full py-3 bg-yellow-900/30 border border-yellow-700 text-yellow-500 font-bold rounded text-xs hover:bg-yellow-900/50 transition-all">
-                            SIMULATE LAG SPIKE
-                        </button>
-                        <button onclick="triggerFly()" class="w-full py-3 bg-red-900/30 border border-red-700 text-red-500 font-bold rounded text-xs hover:bg-red-900/50 transition-all">
-                            SIMULATE FLY HACK
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="procedural" class="hidden h-full flex flex-col max-w-6xl mx-auto">
-                <div class="mb-6">
-                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Chunk Loading <span class="text-red-500">//</span> Marshalling</h2>
-                    <p class="text-zinc-400 text-sm">Dynamic memory management using seed-based coordinate generation.</p>
-                </div>
-                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden min-h-[300px] cursor-move" id="proc-container">
-                    <canvas id="procCanvas" class="w-full h-full"></canvas>
-                    <div class="absolute top-4 left-4 flex gap-4">
-                         <div class="bg-black/80 backdrop-blur p-2 rounded border border-zinc-800 min-w-[120px]">
-                            <div class="text-[10px] font-mono text-zinc-500">MEMORY USAGE</div>
-                            <div class="text-sm font-bold text-blue-400">14.2 MB (STABLE)</div>
-                        </div>
-                         <div class="bg-black/80 backdrop-blur p-2 rounded border border-zinc-800 min-w-[120px]">
-                            <div class="text-[10px] font-mono text-zinc-500">COORDINATES</div>
-                            <div id="proc-coords" class="text-sm font-bold text-white">0, 0</div>
-                        </div>
+                     <div id="code-data-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
+                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Active</div>
+<pre>
+<span class="text-purple-400">function</span> <span class="text-blue-400">Atomic:Transaction</span>(key, callback)
+    <span class="text-yellow-400">DataStore</span>:UpdateAsync(key, <span class="text-purple-400">function</span>(oldData)
+        <span class="text-zinc-500">-- Session Lock Check</span>
+        <span class="text-purple-400">if</span> oldData.JobId ~= <span class="text-blue-400">game</span>.JobId <span class="text-purple-400">then</span> <span class="text-purple-400">return nil</span> <span class="text-purple-400">end</span>
+        
+        <span class="text-zinc-500">-- ACID Compliance: All or Nothing</span>
+        <span class="text-purple-400">local</span> newData = <span class="text-blue-400">deepcopy</span>(oldData)
+        <span class="text-purple-400">local</span> success = <span class="text-blue-400">pcall</span>(callback, newData)
+        
+        <span class="text-purple-400">return</span> success <span class="text-purple-400">and</span> newData <span class="text-purple-400">or</span> <span class="text-purple-400">nil</span>
+    <span class="text-purple-400">end</span>)
+<span class="text-purple-400">end</span>
+</pre>
                     </div>
                 </div>
             </div>
@@ -344,616 +309,10 @@
         </section>
     </main>
 
-    <script>
-        // --- 1. UTILITY ---
-        function setupCanvas(canvas) {
-            if(!canvas) return null;
-            const ctx = canvas.getContext('2d');
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
-            return { ctx, width: rect.width, height: rect.height };
-        }
-
-        // --- 2. TERMINAL LOGIC ---
-        (function() {
-            const input = document.getElementById('cmd-input');
-            const output = document.getElementById('console-output');
-            
-            input.addEventListener('keydown', function(e) {
-                if(e.key === 'Enter') {
-                    const cmd = this.value.trim().toLowerCase();
-                    this.value = '';
-                    log(`root@kyakz:~$ ${cmd}`, 'text-zinc-400');
-                    processCommand(cmd);
-                }
-            });
-
-            function log(text, color = 'text-zinc-300') {
-                const div = document.createElement('div');
-                div.className = color;
-                div.textContent = text;
-                output.appendChild(div);
-                output.scrollTop = output.scrollHeight;
-            }
-
-            function processCommand(cmd) {
-                if(cmd === 'help') {
-                    log('Available commands:', 'text-yellow-400');
-                    log('  about      - System info');
-                    log('  contact    - Display email');
-                    log('  clear      - Clear terminal');
-                    log('  date       - System time');
-                } 
-                else if(cmd === 'clear') { output.innerHTML = ''; }
-                else if(cmd === 'about') { log('Kyakz.OS v4.3.1 - Built for Roblox High Performance.', 'text-blue-400'); }
-                else if(cmd === 'contact') { log('Email: kyakz.dev@proton.me', 'text-green-400'); }
-                else if(cmd === 'date') { log(new Date().toString(), 'text-zinc-500'); }
-                else if(cmd === '') {}
-                else { log(`Command not found: ${cmd}`, 'text-red-500'); }
-            }
-        })();
-        // --- 3. NETWORK ---
-        (function() {
-            const canvas = document.getElementById('netCanvas');
-            const slider = document.getElementById('pingSlider');
-            const pingDisplay = document.getElementById('pingValue');
-            let algorithm = 'standard';
-            let tick = 0;
-            const positionBuffer = [];
-            const target = { x: 0, y: 0, radius: 20 };
-            const particles = [];
-
-            function loop() {
-                // PERFORMANCE FIX: Stop loop if hidden
-                if(document.getElementById('network').classList.contains('hidden')) {
-                    requestAnimationFrame(loop); return; 
-                }
-
-                const { ctx, width, height } = setupCanvas(canvas);
-                tick++;
-                
-                target.x = width / 2 + Math.sin(tick * 0.02) * (width * 0.35);
-                target.y = height / 2 + Math.cos(tick * 0.03) * (height * 0.2);
-                positionBuffer.push({ x: target.x, y: target.y });
-                if (positionBuffer.length > 600) positionBuffer.shift();
-
-                const ping = parseInt(slider.value);
-                pingDisplay.innerText = ping;
-
-                ctx.fillStyle = '#18181b'; ctx.fillRect(0, 0, width, height);
-                ctx.strokeStyle = '#27272a'; ctx.beginPath();
-                for(let i=0; i<width; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i,height); }
-                for(let i=0; i<height; i+=40) { ctx.moveTo(0,i); ctx.lineTo(width,i); }
-                ctx.stroke();
-
-                const ghostIndex = Math.floor(positionBuffer.length - 1 - (ping / 16));
-                const ghostPos = positionBuffer[Math.max(0, ghostIndex)] || target;
-
-                if (algorithm === 'standard') {
-                    ctx.fillStyle = '#3f3f46'; ctx.beginPath();
-                    ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2); ctx.fill();
-                }
-
-                ctx.shadowBlur = 15; ctx.shadowColor = '#ef4444';
-                ctx.fillStyle = '#ef4444'; ctx.beginPath();
-                ctx.arc(ghostPos.x, ghostPos.y, target.radius, 0, Math.PI * 2); ctx.fill();
-                ctx.shadowBlur = 0;
-
-                particles.forEach((p, i) => {
-                    p.life--;
-                    ctx.fillStyle = p.color; ctx.globalAlpha = p.life / 30;
-                    ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
-                    if (p.life <= 0) particles.splice(i, 1);
-                });
-                ctx.globalAlpha = 1;
-                requestAnimationFrame(loop);
-            }
-            loop();
-
-            canvas.addEventListener('mousedown', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                const mouseX = e.clientX - rect.left;
-                const mouseY = e.clientY - rect.top;
-                const ping = parseInt(slider.value);
-                let hit = false;
-
-                if (algorithm === 'standard') {
-                    const dist = Math.hypot(mouseX - target.x, mouseY - target.y);
-                    if (dist < target.radius) hit = true;
-                } else {
-                    const ghostIndex = Math.floor(positionBuffer.length - 1 - (ping / 16));
-                    const pastPos = positionBuffer[Math.max(0, ghostIndex)] || target;
-                    const dist = Math.hypot(mouseX - pastPos.x, mouseY - pastPos.y);
-                    if (dist < target.radius) hit = true;
-                }
-
-                particles.push({
-                    x: mouseX, y: mouseY, 
-                    color: hit ? '#22c55e' : '#71717a',
-                    radius: hit ? 10 : 4, life: 30
-                });
-            });
-
-            window.setAlgo = function(type) {
-                algorithm = type;
-                const btnStd = document.getElementById('btn-algo-std');
-                const btnKyakz = document.getElementById('btn-algo-kyakz');
-                const codeStd = document.getElementById('code-net-std');
-                const codeKyakz = document.getElementById('code-net-kyakz');
-                
-                const active = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
-                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-                const cActive = "code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40";
-                const cInactive = "code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40";
-
-                if(type === 'standard') { 
-                    btnStd.className = active; btnKyakz.className = inactive; 
-                    codeStd.className = cActive; codeKyakz.className = cInactive;
-                } else { 
-                    btnStd.className = inactive; btnKyakz.className = active; 
-                    codeStd.className = cInactive; codeKyakz.className = cActive;
-                }
-            };
-        })();
-
-        // --- 4. PHYSICS ---
-        (function() {
-            const canvas = document.getElementById('phyCanvas');
-            const statsChecks = document.getElementById('phy-checks');
-            const statsOpt = document.getElementById('phy-opt');
-            let mode = 'standard';
-            let particles = [];
-            
-            function initParticles(w, h) {
-                particles = Array.from({length: 250}, () => ({
-                    x: Math.random() * w, y: Math.random() * h,
-                    vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2
-                }));
-            }
-
-            function loop() {
-                // PERFORMANCE FIX
-                if(document.getElementById('physics').classList.contains('hidden')) {
-                    requestAnimationFrame(loop); return; 
-                }
-
-                const { ctx, width, height } = setupCanvas(canvas);
-                if(particles.length === 0) initParticles(width, height);
-
-                particles.forEach(p => {
-                    p.x += p.vx; p.y += p.vy;
-                    if(p.x < 0) { p.x = 0; p.vx *= -1; }
-                    if(p.x > width) { p.x = width; p.vx *= -1; }
-                    if(p.y < 0) { p.y = 0; p.vy *= -1; }
-                    if(p.y > height) { p.y = height; p.vy *= -1; }
-                });
-
-                ctx.fillStyle = '#18181b'; ctx.fillRect(0,0,width,height);
-                let checks = 0;
-
-                if (mode === 'standard') {
-                    ctx.fillStyle = '#71717a';
-                    particles.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill(); });
-                    ctx.strokeStyle = 'rgba(239, 68, 68, 0.05)';
-                    ctx.beginPath();
-                    for(let i=0; i<particles.length; i++) {
-                        for(let j=i+1; j<particles.length; j++) {
-                            checks++;
-                            if(Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y) < 40) {
-                                ctx.moveTo(particles[i].x, particles[i].y);
-                                ctx.lineTo(particles[j].x, particles[j].y);
-                            }
-                        }
-                    }
-                    ctx.stroke();
-                } else {
-                    const CELL = 80;
-                    ctx.strokeStyle = '#27272a'; ctx.beginPath();
-                    for(let x=0; x<width; x+=CELL) { ctx.moveTo(x,0); ctx.lineTo(x,height); }
-                    for(let y=0; y<height; y+=CELL) { ctx.moveTo(0,y); ctx.lineTo(width,y); }
-                    ctx.stroke();
-
-                    const grid = {};
-                    particles.forEach(p => {
-                        const key = `${Math.floor(p.x/CELL)},${Math.floor(p.y/CELL)}`;
-                        if(!grid[key]) grid[key] = [];
-                        grid[key].push(p);
-                    });
-
-                    ctx.fillStyle = '#22c55e'; ctx.strokeStyle = 'rgba(34, 197, 94, 0.5)';
-                    particles.forEach(p => {
-                        ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
-                        const cx = Math.floor(p.x/CELL), cy = Math.floor(p.y/CELL);
-                        for(let x=-1; x<=1; x++) {
-                            for(let y=-1; y<=1; y++) {
-                                const cell = grid[`${cx+x},${cy+y}`];
-                                if(cell) {
-                                    cell.forEach(n => {
-                                        if(n===p) return;
-                                        checks++;
-                                        if(Math.hypot(p.x-n.x, p.y-n.y) < 40) {
-                                            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(n.x, n.y); ctx.stroke();
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    });
-                }
-
-                statsChecks.innerText = checks.toLocaleString();
-                const worst = (250 * 249) / 2;
-                if(mode === 'spatial') {
-                    statsOpt.innerText = `${Math.round(((worst - checks)/worst)*100)}% FASTER`;
-                    statsOpt.className = "text-green-500 font-bold";
-                    statsChecks.className = "text-green-500 font-bold";
-                } else {
-                    statsOpt.innerText = "0% (BASELINE)";
-                    statsOpt.className = "text-red-500 font-bold";
-                    statsChecks.className = "text-red-500 font-bold";
-                }
-                requestAnimationFrame(loop);
-            }
-            loop();
-
-            window.setPhyAlgo = function(type) {
-                mode = type;
-                const btnStd = document.getElementById('btn-phy-std');
-                const btnKyakz = document.getElementById('btn-phy-kyakz');
-                const codeStd = document.getElementById('code-phy-std');
-                const codeKyakz = document.getElementById('code-phy-kyakz');
-                
-                const active = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
-                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-                const cActive = "code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40";
-                const cInactive = "code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40";
-                
-                if(type === 'standard') { 
-                    btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all"; btnKyakz.className = inactive; 
-                    codeStd.className = cActive; codeKyakz.className = cInactive;
-                } else { 
-                    btnStd.className = inactive; btnKyakz.className = active; 
-                    codeStd.className = cInactive; codeKyakz.className = cActive;
-                }
-            };
-        })();
-
-        // --- 5. DATA ---
-        (function() {
-            let mode = 'standard';
-            let walletA = 1000, walletB = 0;
-            let inProgress = false, crashed = false;
-            const elA = document.getElementById('wallet-a-val');
-            const elB = document.getElementById('wallet-b-val');
-            const packet = document.getElementById('data-packet');
-            const status = document.getElementById('data-status');
-            const crashBtn = document.getElementById('btn-crash');
-
-            function animateValue(obj, start, end, duration) {
-                let startTimestamp = null;
-                const step = (timestamp) => {
-                    if (!startTimestamp) startTimestamp = timestamp;
-                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                    obj.innerHTML = Math.floor(progress * (end - start) + start);
-                    if (progress < 1) window.requestAnimationFrame(step);
-                };
-                window.requestAnimationFrame(step);
-            }
-
-            function reset() {
-                walletA = 1000; walletB = 0; 
-                elA.innerText = 1000; elB.innerText = 0;
-                packet.style.transition = 'none'; packet.style.left = '0%'; packet.style.opacity = '0';
-                packet.className = "w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black";
-                void packet.offsetWidth;
-                inProgress = false; crashed = false;
-                status.innerText = "Ready."; status.className = "mt-8 font-mono text-xs md:text-sm text-zinc-500 h-6";
-                crashBtn.classList.add('btn-disabled');
-            }
-
-            window.startTransaction = function() {
-                if(inProgress) return;
-                if(walletA < 500) { animateValue(elA, walletA, 1000, 500); walletA = 1000; return; }
-                inProgress = true; crashed = false;
-                packet.style.transition = 'none'; packet.style.left = '0%'; packet.style.opacity = '0'; 
-                packet.className = "w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black";
-                void packet.offsetWidth;
-                crashBtn.classList.remove('btn-disabled');
-
-                const prevA = walletA; walletA -= 500; animateValue(elA, prevA, walletA, 500);
-                status.innerText = "Sending..."; status.className = "mt-8 font-mono text-xs md:text-sm text-blue-400 h-6";
-                packet.style.opacity = '1'; packet.style.transition = 'left 3s linear'; packet.style.left = '100%';
-
-                window.transactionTimer = setTimeout(() => {
-                    if(!crashed) {
-                        const prevB = walletB; walletB += 500; animateValue(elB, prevB, walletB, 500);
-                        status.innerText = "SUCCESS."; status.className = "mt-8 font-mono text-xs md:text-sm text-green-500 h-6";
-                        packet.style.opacity = '0'; inProgress = false; crashBtn.classList.add('btn-disabled');
-                    }
-                }, 3000);
-            };
-
-            window.simulateCrash = function() {
-                if(!inProgress) return;
-                crashed = true; clearTimeout(window.transactionTimer);
-                const rect = packet.getBoundingClientRect();
-                const parentRect = packet.parentElement.getBoundingClientRect();
-                const percent = ((rect.left - parentRect.left) / packet.parentElement.offsetWidth) * 100;
-                
-                packet.style.transition = 'none'; packet.style.left = percent + '%';
-                status.innerText = "⚠ CONNECTION LOST"; status.className = "mt-8 font-mono text-xs md:text-sm text-red-500 h-6 font-bold animate-pulse";
-                packet.classList.add('bg-red-600', 'text-white');
-
-                setTimeout(() => {
-                    if(mode === 'standard') {
-                        status.innerText = "FAILURE: Money Lost."; packet.style.opacity = '0'; inProgress = false;
-                    } else {
-                        status.innerText = "ATOMIC: Rolling back..."; status.className = "mt-8 font-mono text-xs md:text-sm text-yellow-500 h-6";
-                        packet.style.transition = 'left 1s ease-out'; packet.style.left = '0%';
-                        setTimeout(() => {
-                            const prevA = walletA; walletA += 500; animateValue(elA, prevA, walletA, 500);
-                            status.innerText = "SAFE: Refunded."; status.className = "mt-8 font-mono text-xs md:text-sm text-green-500 h-6";
-                            packet.style.opacity = '0'; inProgress = false;
-                        }, 1000);
-                    }
-                    crashBtn.classList.add('btn-disabled');
-                }, 1000);
-            };
-
-            window.setDataAlgo = function(type) {
-                mode = type; reset();
-                const btnStd = document.getElementById('btn-data-std');
-                const btnKyakz = document.getElementById('btn-data-kyakz');
-                const codeStd = document.getElementById('code-data-std');
-                const codeKyakz = document.getElementById('code-data-kyakz');
-                const active = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
-                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-                const cActive = "code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40";
-                const cInactive = "code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40";
-
-                if(type === 'standard') { 
-                    btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all"; btnKyakz.className = inactive; 
-                    codeStd.className = cActive; codeKyakz.className = cInactive;
-                } else { 
-                    btnStd.className = inactive; btnKyakz.className = active; 
-                    codeStd.className = cInactive; codeKyakz.className = cActive;
-                }
-            };
-        })();
-
-        // --- 6. AI FLOW FIELD ---
-        (function() {
-            const canvas = document.getElementById('aiCanvas');
-            const particles = [];
-            const rows = 20, cols = 30;
-            let grid = [], cellW, cellH;
-            let target = {c: 25, r: 10};
-
-            function init() {
-                grid = [];
-                for(let c=0; c<cols; c++) {
-                    grid[c] = [];
-                    for(let r=0; r<rows; r++) grid[c][r] = { wall: false, vec: {x:0, y:0} };
-                }
-                for(let i=0; i<500; i++) particles.push({x: Math.random()*100, y: Math.random()*100, vx:0, vy:0});
-                calcFlow();
-            }
-
-            function calcFlow() {
-                for(let c=0; c<cols; c++) {
-                    for(let r=0; r<rows; r++) {
-                        if(grid[c][r].wall) { grid[c][r].vec = {x:0, y:0}; continue; }
-                        const dx = target.c - c; const dy = target.r - r;
-                        const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-                        grid[c][r].vec = {x: dx/dist, y: dy/dist};
-                    }
-                }
-            }
-
-            function loop() {
-                // PERFORMANCE FIX
-                if(document.getElementById('ai').classList.contains('hidden')) {
-                    requestAnimationFrame(loop); return; 
-                }
-
-                const {ctx, width, height} = setupCanvas(canvas);
-                if(!grid.length) init();
-                cellW = width/cols; cellH = height/rows;
-
-                ctx.strokeStyle = '#3f3f46'; ctx.lineWidth = 1;
-                for(let c=0; c<cols; c++) {
-                    for(let r=0; r<rows; r++) {
-                        const x = c*cellW, y = r*cellH;
-                        if(grid[c][r].wall) {
-                            ctx.fillStyle = '#ef4444'; ctx.fillRect(x,y,cellW,cellH);
-                        } else {
-                            const v = grid[c][r].vec;
-                            ctx.beginPath(); ctx.moveTo(x+cellW/2, y+cellH/2);
-                            ctx.lineTo(x+cellW/2 + v.x*10, y+cellH/2 + v.y*10);
-                            ctx.stroke();
-                        }
-                    }
-                }
-
-                ctx.fillStyle = '#22c55e';
-                ctx.beginPath(); ctx.arc(target.c*cellW + cellW/2, target.r*cellH + cellH/2, 8, 0, Math.PI*2); ctx.fill();
-
-                ctx.fillStyle = '#fff';
-                particles.forEach(p => {
-                    const c = Math.floor(p.x / cellW);
-                    const r = Math.floor(p.y / cellH);
-                    if(c>=0 && c<cols && r>=0 && r<rows) {
-                        const vec = grid[c][r].vec;
-                        p.vx += (vec.x - p.vx) * 0.1; p.vy += (vec.y - p.vy) * 0.1;
-                        if(grid[c][r].wall) { p.vx *= -1; p.vy *= -1; }
-                    }
-                    p.x += p.vx * 2; p.y += p.vy * 2;
-                    if(p.x<0) p.x=width; if(p.x>width) p.x=0; if(p.y<0) p.y=height; if(p.y>height) p.y=0;
-                    ctx.fillRect(p.x, p.y, 2, 2);
-                });
-                requestAnimationFrame(loop);
-            }
-            loop();
-
-            canvas.addEventListener('mousedown', e => {
-                const rect = canvas.getBoundingClientRect();
-                // HIGH DPI MOUSE FIX
-                const c = Math.floor(((e.clientX - rect.left) / rect.width) * cols);
-                const r = Math.floor(((e.clientY - rect.top) / rect.height) * rows);
-                if(c>=0 && c<cols && r>=0 && r<rows) {
-                    grid[c][r].wall = !grid[c][r].wall;
-                    calcFlow();
-                }
-            });
-        })();
-
-        // --- 7. SECURITY ---
-        (function() {
-            const canvas = document.getElementById('secCanvas');
-            const valDisplay = document.getElementById('sec-vel');
-            const varDisplay = document.getElementById('sec-var');
-            const alertBox = document.getElementById('sec-flag');
-            let history = [], mode = 'normal', timer = 0;
-
-            function loop() {
-                // PERFORMANCE FIX
-                if(document.getElementById('security').classList.contains('hidden')) {
-                    requestAnimationFrame(loop); return; 
-                }
-
-                const {ctx, width, height} = setupCanvas(canvas);
-                let val = 16;
-                if(mode === 'normal') val += (Math.random()-0.5) * 2;
-                else if(mode === 'lag') val += (Math.random()-0.5) * 50;
-                else if(mode === 'fly') val = 60;
-
-                history.push(val); if(history.length > 100) history.shift();
-
-                ctx.fillStyle = '#18181b'; ctx.fillRect(0,0,width,height);
-                ctx.strokeStyle = '#27272a'; ctx.beginPath();
-                const yBase = height - 50;
-                ctx.moveTo(0, yBase); ctx.lineTo(width, yBase);
-                ctx.moveTo(0, yBase - 60); ctx.lineTo(width, yBase - 60);
-                ctx.stroke();
-
-                ctx.strokeStyle = mode === 'fly' ? '#ef4444' : '#22c55e'; ctx.lineWidth = 2;
-                ctx.beginPath();
-                history.forEach((h, i) => {
-                    const x = (i / 100) * width; const y = yBase - h;
-                    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-                });
-                ctx.stroke();
-
-                const avg = history.reduce((a,b)=>a+b,0)/history.length;
-                const variance = history.reduce((a,b)=>a+Math.pow(b-avg,2),0)/history.length;
-                
-                valDisplay.innerText = val.toFixed(2);
-                varDisplay.innerText = variance.toFixed(2);
-                alertBox.style.opacity = (avg > 30 && variance < 10) ? 1 : 0;
-
-                if(timer > 0) timer--; else mode = 'normal';
-                requestAnimationFrame(loop);
-            }
-            loop();
-
-            window.triggerLag = () => { mode = 'lag'; timer = 60; };
-            window.triggerFly = () => { mode = 'fly'; timer = 120; };
-        })();
-
-        // --- 8. PROCEDURAL ---
-        (function() {
-            const canvas = document.getElementById('procCanvas');
-            const coordDisplay = document.getElementById('proc-coords');
-            let camX = 0, camY = 0;
-            let dragging = false, lastX, lastY;
-
-            function noise(x, y) {
-                const sin = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-                return sin - Math.floor(sin);
-            }
-            function getBiome(val) {
-                if(val < 0.3) return '#1e1b4b'; if(val < 0.4) return '#3b82f6';
-                if(val < 0.45) return '#fde047'; if(val < 0.7) return '#166534';
-                if(val < 0.85) return '#57534e'; return '#fff';
-            }
-
-            function loop() {
-                // PERFORMANCE FIX
-                if(document.getElementById('procedural').classList.contains('hidden')) {
-                    requestAnimationFrame(loop); return; 
-                }
-
-                const {ctx, width, height} = setupCanvas(canvas);
-                const rect = canvas.getBoundingClientRect(); // RENDER FIX
-                const chunkSize = 40;
-                
-                const startX = Math.floor(camX / chunkSize);
-                const startY = Math.floor(camY / chunkSize);
-                const cols = Math.ceil(rect.width / chunkSize) + 1; // RENDER FIX
-                const rows = Math.ceil(rect.height / chunkSize) + 1;
-                const offsetX = -(camX % chunkSize);
-                const offsetY = -(camY % chunkSize);
-
-                coordDisplay.innerText = `${Math.floor(camX)}, ${Math.floor(camY)}`;
-
-                for(let x=0; x<cols; x++) {
-                    for(let y=0; y<rows; y++) {
-                        const worldX = (startX + x) * 0.1;
-                        const worldY = (startY + y) * 0.1;
-                        const n1 = noise(Math.floor(worldX), Math.floor(worldY));
-                        const n2 = noise(Math.floor(worldX*3), Math.floor(worldY*3)) * 0.5;
-                        const val = (n1 + n2) / 1.5;
-
-                        ctx.fillStyle = getBiome(val);
-                        ctx.fillRect(offsetX + x*chunkSize, offsetY + y*chunkSize, chunkSize+1, chunkSize+1);
-                        ctx.strokeStyle = 'rgba(0,0,0,0.1)';
-                        ctx.strokeRect(offsetX + x*chunkSize, offsetY + y*chunkSize, chunkSize, chunkSize);
-                    }
-                }
-                requestAnimationFrame(loop);
-            }
-            loop();
-
-            const container = document.getElementById('proc-container');
-            container.addEventListener('mousedown', e => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
-            window.addEventListener('mouseup', () => dragging = false);
-            window.addEventListener('mousemove', e => {
-                if(dragging) {
-                    camX -= (e.clientX - lastX);
-                    camY -= (e.clientY - lastY);
-                    lastX = e.clientX; lastY = e.clientY;
-                }
-            });
-        })();
-
-        // --- 9. SYSTEM BOOT ---
-        const memDisplay = document.getElementById('status-mem');
-        setInterval(() => { memDisplay.innerText = `MEM: ${Math.floor(Math.random() * 5 + 12)}MB`; }, 2000);
-
-        function bootModule(moduleId) {
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-zinc-800', 'border-red-500', 'text-white');
-                btn.classList.add('border-transparent', 'text-zinc-400');
-            });
-            const btn = document.getElementById('nav-' + moduleId);
-            if(btn) {
-                btn.classList.add('bg-zinc-800', 'border-red-500', 'text-white');
-                btn.classList.remove('border-transparent', 'text-zinc-400');
-            }
-            
-            const modules = ['terminal', 'network', 'physics', 'data', 'ai', 'security', 'procedural'];
-            modules.forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.add('hidden');
-            });
-            
-            const target = document.getElementById(moduleId);
-            if(target) target.classList.remove('hidden');
-            window.dispatchEvent(new Event('resize'));
-        }
-    </script>
+    <script src="js/core.js"></script>
+    <script src="js/terminal.js"></script>
+    <script src="js/network.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/data.js"></script>
 </body>
 </html>
