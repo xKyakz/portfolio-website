@@ -107,17 +107,223 @@
                 </div>
             </div>
 
-            <div id="network" class="hidden">
-                <h2 class="text-3xl font-bold text-white mb-4">Replication Layer <span class="text-red-500">//</span></h2>
-                <div class="border border-dashed border-zinc-700 rounded-xl h-96 flex items-center justify-center bg-zinc-900/30">
-                    <div class="text-center">
-                        <div class="text-4xl mb-4">📡</div>
-                        <h3 class="text-xl font-bold text-zinc-300">Bit-Buffer Stream Visualizer</h3>
-                        <p class="text-zinc-500 mt-2">Interactive Demo Loading...</p>
-                        <p class="text-xs text-zinc-600 mt-4 font-mono">STATUS: PENDING DEPLOYMENT</p>
-                    </div>
-                </div>
-            </div>
+<div id="network" class="hidden h-full flex flex-col">
+    <div class="mb-6 flex justify-between items-end">
+        <div>
+            <h2 class="text-3xl font-bold text-white mb-1">Replication <span class="text-red-500">//</span> Lag Compensation</h2>
+            <p class="text-zinc-400 text-sm">Server-side hit registration algorithm for high-latency clients.</p>
+        </div>
+        <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
+            <button id="btn-algo-std" onclick="setAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">STANDARD</button>
+            <button id="btn-algo-kyakz" onclick="setAlgo('kyakz')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">KYAKZ REWIND</button>
+        </div>
+    </div>
+
+    <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-crosshair" id="canvas-container">
+        <canvas id="netCanvas" class="w-full h-full"></canvas>
+        
+        <div class="absolute top-4 left-4 pointer-events-none space-y-1">
+            <div class="text-xs font-mono text-zinc-500">SERVER_TICK: <span id="debug-tick" class="text-white">0</span></div>
+            <div class="text-xs font-mono text-zinc-500">BUFFER_SIZE: <span class="text-white">1024 FRAMES</span></div>
+        </div>
+
+        <div class="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur p-3 rounded border border-zinc-800 flex items-center space-x-4">
+            <span class="text-xs font-bold text-red-500 whitespace-nowrap">SIMULATED PING:</span>
+            <input type="range" min="0" max="1000" value="0" class="w-full accent-red-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer" id="pingSlider">
+            <span class="text-xs font-mono text-white w-16 text-right"><span id="pingValue">0</span>ms</span>
+        </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-2 gap-4 h-32">
+        <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-500">
+            <span class="text-purple-400">function</span> <span class="text-blue-400">VerifyHit</span>(player, target, timestamp)<br>
+            &nbsp;&nbsp;<span class="text-zinc-500">-- Standard Roblox Check (Fails at >100ms)</span><br>
+            &nbsp;&nbsp;<span class="text-purple-400">if</span> (target.Position - player.Aim).Magnitude < 5 <span class="text-purple-400">then</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-green-400">return true</span><br>
+            &nbsp;&nbsp;<span class="text-purple-400">end</span><br>
+            <span class="text-purple-400">end</span>
+        </div>
+        <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-400 relative">
+             <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[10px] px-2 py-0.5 rounded-bl">ACTIVE: KYAKZ ALGO</div>
+             <span class="text-purple-400">function</span> <span class="text-blue-400">VerifyHitRewind</span>(player, target, ping)<br>
+             &nbsp;&nbsp;<span class="text-zinc-500">-- 1. Fetch historical position from Buffer</span><br>
+             &nbsp;&nbsp;<span class="text-purple-400">local</span> pastPos = <span class="text-yellow-400">PositionBuffer</span>:Get(os.clock() - ping)<br>
+             &nbsp;&nbsp;<span class="text-zinc-500">-- 2. Validate Hit against OLD position</span><br>
+             &nbsp;&nbsp;<span class="text-purple-400">if</span> (pastPos - player.Aim).Magnitude < 5 <span class="text-purple-400">then</span>...
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- MODULE A: SCRIPT LOGIC ---
+    (function() {
+        const canvas = document.getElementById('netCanvas');
+        const ctx = canvas.getContext('2d');
+        const slider = document.getElementById('pingSlider');
+        const pingDisplay = document.getElementById('pingValue');
+        
+        // Resize Canvas to fit container
+        function resize() {
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+        }
+        window.addEventListener('resize', resize);
+        setTimeout(resize, 100); // Initial resize
+
+        // Game State
+        let algorithm = 'standard'; // 'standard' or 'kyakz'
+        let ping = 0;
+        let tick = 0;
+        
+        // The Target Object
+        const target = { x: 0, y: 0, radius: 20, speed: 4 };
+        
+        // The History Buffer (Stores where the target WAS)
+        // Format: [{x, y, tick}]
+        const positionBuffer = [];
+        const BUFFER_SIZE = 600; // Store last 600 frames (~10 seconds)
+
+        // Visual Effects (Hits/Misses)
+        const particles = [];
+
+        // 1. UPDATE LOOP (The "Server")
+        function update() {
+            tick++;
+            document.getElementById('debug-tick').innerText = tick;
+
+            // Move Target (Sine Wave Pattern)
+            target.x = canvas.width / 2 + Math.sin(tick * 0.02) * (canvas.width * 0.35);
+            target.y = canvas.height / 2 + Math.cos(tick * 0.03) * (canvas.height * 0.2);
+
+            // Save to Buffer (Server Memory)
+            positionBuffer.push({ x: target.x, y: target.y, tick: tick });
+            if (positionBuffer.length > BUFFER_SIZE) positionBuffer.shift();
+
+            // Update Ping
+            ping = parseInt(slider.value);
+            pingDisplay.innerText = ping;
+        }
+
+        // 2. DRAW LOOP (The "Client View")
+        function draw() {
+            // Clear Screen
+            ctx.fillStyle = '#18181b'; // Zinc-900
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Grid (The "Engine" feel)
+            ctx.strokeStyle = '#27272a';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            for(let i=0; i<canvas.width; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); }
+            for(let i=0; i<canvas.height; i+=40) { ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); }
+            ctx.stroke();
+
+            // Draw the "Ghost" Target (Where the client THINKS the target is)
+            // This represents the delay. If Ping is 200ms, the client sees the target 200ms in the past.
+            const clientTick = Math.max(0, tick - (ping / 16)); // Approx 16ms per frame
+            const ghostIndex = Math.floor(positionBuffer.length - 1 - (ping / 16));
+            let ghostPos = target;
+            
+            if (ghostIndex >= 0 && ghostIndex < positionBuffer.length) {
+                ghostPos = positionBuffer[ghostIndex];
+            }
+
+            // Draw Target
+            // The "Real" Target (Server Position) - Only visible in Standard Mode or Debug
+            if (algorithm === 'standard') {
+                 ctx.fillStyle = '#3f3f46'; // Grey (Server Position)
+                 ctx.beginPath();
+                 ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
+                 ctx.fill();
+            }
+
+            // The "Client" Target (Red) - This is what the user aims at
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ef4444';
+            ctx.fillStyle = '#ef4444';
+            ctx.beginPath();
+            ctx.arc(ghostPos.x, ghostPos.y, target.radius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Draw Particles (Hits/Misses)
+            particles.forEach((p, i) => {
+                p.life--;
+                ctx.fillStyle = p.color;
+                ctx.globalAlpha = p.life / 30;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                ctx.fill();
+                if (p.life <= 0) particles.splice(i, 1);
+            });
+            ctx.globalAlpha = 1;
+
+            requestAnimationFrame(draw);
+        }
+
+        // 3. INTERACTION (The "Shoot" Event)
+        canvas.addEventListener('mousedown', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+
+            let hit = false;
+
+            if (algorithm === 'standard') {
+                // STANDARD: Check vs CURRENT Server Position
+                // If ping is high, Mouse is at "Ghost", but Server is at "Target". MISS.
+                const dist = Math.hypot(mouseX - target.x, mouseY - target.y);
+                if (dist < target.radius) hit = true;
+            } else {
+                // KYAKZ ALGO: Rewind Time
+                // Find where the target WAS 'ping' ms ago
+                const ghostIndex = Math.floor(positionBuffer.length - 1 - (ping / 16));
+                if (ghostIndex >= 0) {
+                    const pastPos = positionBuffer[ghostIndex];
+                    const dist = Math.hypot(mouseX - pastPos.x, mouseY - pastPos.y);
+                    if (dist < target.radius) hit = true;
+                }
+            }
+
+            // Spawn Particles
+            particles.push({
+                x: mouseX, y: mouseY, 
+                color: hit ? '#22c55e' : '#71717a', // Green or Grey
+                radius: hit ? 10 : 4,
+                life: 30
+            });
+            
+            // Console Log for "Realism"
+            const consoleOut = document.getElementById('console-output');
+            const log = document.createElement('div');
+            log.innerHTML = hit 
+                ? `<span class="text-green-500">[HIT] Validated. Rewind: ${ping}ms</span>` 
+                : `<span class="text-zinc-600">[MISS] Desync detected.</span>`;
+            consoleOut.appendChild(log);
+            consoleOut.scrollTop = consoleOut.scrollHeight;
+        });
+
+        // Loop Helpers
+        setInterval(update, 16); // 60hz server tick
+        draw();
+
+        // Exposed Global for Buttons
+        window.setAlgo = function(type) {
+            algorithm = type;
+            // Update Button Styles
+            const btnStd = document.getElementById('btn-algo-std');
+            const btnKyakz = document.getElementById('btn-algo-kyakz');
+            
+            if (type === 'standard') {
+                btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
+                btnKyakz.className = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+            } else {
+                btnStd.className = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+                btnKyakz.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
+            }
+        };
+    })();
+</script>
 
             <div id="physics" class="hidden">
                 <h2 class="text-3xl font-bold text-white mb-4">Spatial Physics <span class="text-red-500">//</span></h2>
@@ -144,7 +350,7 @@
         </section>
     </main>
 
-    <script>
+<script>
         // Simulate System Noise
         const memDisplay = document.getElementById('status-mem');
         setInterval(() => {
@@ -161,7 +367,11 @@
             // Show selected module
             document.getElementById(moduleId).classList.remove('hidden');
 
-            // Add a "boot up" glitch effect here later
+            // [FIX] Force resize if opening the Network tab so Canvas isn't blurry
+            if (moduleId === 'network') {
+                window.dispatchEvent(new Event('resize'));
+            }
+
             console.log(`[SYSTEM] Booting module: ${moduleId}`);
         }
     </script>
