@@ -325,16 +325,221 @@
     })();
 </script>
 
-            <div id="physics" class="hidden">
-                <h2 class="text-3xl font-bold text-white mb-4">Spatial Physics <span class="text-red-500">//</span></h2>
-                <div class="border border-dashed border-zinc-700 rounded-xl h-96 flex items-center justify-center bg-zinc-900/30">
-                    <div class="text-center">
-                        <div class="text-4xl mb-4">🧊</div>
-                        <h3 class="text-xl font-bold text-zinc-300">Octree Partitioning Demo</h3>
-                        <p class="text-zinc-500 mt-2">O(1) Collision System Loading...</p>
-                    </div>
-                </div>
-            </div>
+<div id="physics" class="hidden h-full flex flex-col">
+    <div class="mb-6 flex justify-between items-end">
+        <div>
+            <h2 class="text-3xl font-bold text-white mb-1">Spatial Physics <span class="text-red-500">//</span> Broadphase Optimization</h2>
+            <p class="text-zinc-400 text-sm">O(1) collision detection system for high-entity environments.</p>
+        </div>
+        <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
+            <button id="btn-phy-std" onclick="setPhyAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">BRUTE FORCE O(N²)</button>
+            <button id="btn-phy-kyakz" onclick="setPhyAlgo('spatial')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">SPATIAL HASH O(1)</button>
+        </div>
+    </div>
+
+    <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden" id="phy-canvas-container">
+        <canvas id="phyCanvas" class="w-full h-full"></canvas>
+        
+        <div class="absolute top-4 left-4 pointer-events-none space-y-1">
+            <div class="text-xs font-mono text-zinc-500">ENTITIES: <span class="text-white">250</span></div>
+            <div class="text-xs font-mono text-zinc-500">CHECKS/FRAME: <span id="phy-checks" class="text-red-500 font-bold">0</span></div>
+            <div class="text-xs font-mono text-zinc-500">OPTIMIZATION: <span id="phy-opt" class="text-white">0%</span></div>
+        </div>
+    </div>
+
+    <div class="mt-6 grid grid-cols-2 gap-4 h-32">
+        <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-500 opacity-50">
+            <span class="text-purple-400">for</span> i, partA <span class="text-purple-400">in</span> pairs(parts) <span class="text-purple-400">do</span><br>
+            &nbsp;&nbsp;<span class="text-purple-400">for</span> j, partB <span class="text-purple-400">in</span> pairs(parts) <span class="text-purple-400">do</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-zinc-500">-- EXPENSIVE: Checks everything</span><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-purple-400">if</span> (partA - partB).Magnitude < 5 <span class="text-purple-400">then</span>...
+        </div>
+        <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-400 relative">
+             <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[10px] px-2 py-0.5 rounded-bl">ACTIVE: SPATIAL GRID</div>
+             <span class="text-purple-400">local</span> cell = <span class="text-blue-400">GetCell</span>(partA.Position)<br>
+             <span class="text-zinc-500">-- OPTIMIZED: Only check local neighbors</span><br>
+             <span class="text-purple-400">for</span> _, neighbor <span class="text-purple-400">in</span> pairs(Grid[cell]) <span class="text-purple-400">do</span><br>
+             &nbsp;&nbsp;<span class="text-purple-400">if</span> (partA - neighbor).Magnitude < 5 <span class="text-purple-400">then</span>...
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- MODULE C: SPATIAL PHYSICS LOGIC ---
+    (function() {
+        const canvas = document.getElementById('phyCanvas');
+        const ctx = canvas.getContext('2d');
+        const statsChecks = document.getElementById('phy-checks');
+        const statsOpt = document.getElementById('phy-opt');
+
+        let width, height;
+        function resize() {
+            if(!canvas.parentElement) return;
+            width = canvas.parentElement.clientWidth;
+            height = canvas.parentElement.clientHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resize);
+        // Force resize loop to catch tab switches
+        setInterval(resize, 1000); 
+
+        // Config
+        let mode = 'standard'; // 'standard' or 'spatial'
+        const PARTICLE_COUNT = 250;
+        const CELL_SIZE = 80;
+        const CONNECT_DIST = 40;
+
+        // Data
+        const particles = [];
+        for(let i=0; i<PARTICLE_COUNT; i++) {
+            particles.push({
+                x: Math.random() * 800,
+                y: Math.random() * 600,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2
+            });
+        }
+
+        function updateAndDraw() {
+            // Clear
+            ctx.fillStyle = '#18181b';
+            ctx.fillRect(0,0,width,height);
+
+            // Update Positions
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                if(p.x < 0 || p.x > width) p.vx *= -1;
+                if(p.y < 0 || p.y > height) p.vy *= -1;
+            });
+
+            let checks = 0;
+
+            if (mode === 'standard') {
+                // --- BRUTE FORCE (O(N^2)) ---
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.05)'; // Faint red lines
+                ctx.lineWidth = 1;
+                
+                // Draw all particles
+                ctx.fillStyle = '#71717a';
+                particles.forEach(p => {
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+                });
+
+                // The Killer Loop
+                ctx.beginPath();
+                for(let i=0; i<particles.length; i++) {
+                    for(let j=i+1; j<particles.length; j++) {
+                        checks++;
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx*dx + dy*dy);
+                        
+                        // Draw line if close (Collision)
+                        if(dist < CONNECT_DIST) {
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                        }
+                    }
+                }
+                ctx.stroke();
+
+            } else {
+                // --- SPATIAL HASH (O(1)) ---
+                
+                // 1. Draw Grid
+                ctx.strokeStyle = '#27272a';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                for(let x=0; x<width; x+=CELL_SIZE) { ctx.moveTo(x,0); ctx.lineTo(x,height); }
+                for(let y=0; y<height; y+=CELL_SIZE) { ctx.moveTo(0,y); ctx.lineTo(width,y); }
+                ctx.stroke();
+
+                // 2. Build Hash Map
+                const grid = {};
+                particles.forEach(p => {
+                    // Calculate Grid Key "X,Y"
+                    const key = `${Math.floor(p.x/CELL_SIZE)},${Math.floor(p.y/CELL_SIZE)}`;
+                    if(!grid[key]) grid[key] = [];
+                    grid[key].push(p);
+                });
+
+                // 3. Draw & Check Neighbors
+                ctx.fillStyle = '#22c55e'; // Green dots
+                ctx.strokeStyle = 'rgba(34, 197, 94, 0.5)'; // Green lines
+
+                particles.forEach(p => {
+                    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+                    
+                    const cellX = Math.floor(p.x/CELL_SIZE);
+                    const cellY = Math.floor(p.y/CELL_SIZE);
+
+                    // Only check local cell and immediate neighbors (3x3 grid)
+                    for(let x=-1; x<=1; x++) {
+                        for(let y=-1; y<=1; y++) {
+                            const key = `${cellX+x},${cellY+y}`;
+                            if(grid[key]) {
+                                grid[key].forEach(neighbor => {
+                                    if(neighbor === p) return;
+                                    checks++; // Increment Check Count
+                                    
+                                    const dx = p.x - neighbor.x;
+                                    const dy = p.y - neighbor.y;
+                                    const dist = Math.sqrt(dx*dx + dy*dy);
+                                    
+                                    if(dist < CONNECT_DIST) {
+                                        ctx.beginPath();
+                                        ctx.moveTo(p.x, p.y);
+                                        ctx.lineTo(neighbor.x, neighbor.y);
+                                        ctx.stroke();
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Update Stats
+            statsChecks.innerText = checks.toLocaleString();
+            
+            // Calculate Optimization %
+            // Worst case N*(N-1)/2 approx 31,000 checks
+            const worstCase = (PARTICLE_COUNT * (PARTICLE_COUNT - 1)) / 2;
+            if(mode === 'spatial') {
+                const saving = Math.round(((worstCase - checks) / worstCase) * 100);
+                statsOpt.innerText = `${saving}% FASTER`;
+                statsOpt.className = "text-green-500 font-bold";
+                statsChecks.className = "text-green-500 font-bold";
+            } else {
+                statsOpt.innerText = "0% (BASELINE)";
+                statsOpt.className = "text-red-500 font-bold";
+                statsChecks.className = "text-red-500 font-bold";
+            }
+
+            requestAnimationFrame(updateAndDraw);
+        }
+
+        // Global Exposed Function for Buttons
+        window.setPhyAlgo = function(type) {
+            mode = type;
+            const btnStd = document.getElementById('btn-phy-std');
+            const btnKyakz = document.getElementById('btn-phy-kyakz');
+            
+            if (type === 'standard') {
+                btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
+                btnKyakz.className = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+            } else {
+                btnStd.className = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+                btnKyakz.className = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
+            }
+        };
+
+        // Start Loop
+        updateAndDraw();
+    })();
+</script>
 
              <div id="data" class="hidden">
                 <h2 class="text-3xl font-bold text-white mb-4">Atomic Data <span class="text-red-500">//</span></h2>
