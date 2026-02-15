@@ -6,65 +6,66 @@
     <title>KYAKZ // SYSTEMS ARCHITECT</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
         body { font-family: 'JetBrains Mono', monospace; }
         
-        /* The "Scanline" Effect */
+        /* CRT Scanline */
         .scanline {
             background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
             background-size: 100% 4px;
-            position: fixed; pointer-events: none;
-            top: 0; left: 0; right: 0; bottom: 0; z-index: 50;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; pointer-events: none;
         }
 
-        /* The Blinking Cursor */
+        /* Cursor */
         .cursor::after {
             content: '█';
             animation: blink 1s step-end infinite;
-            color: #ef4444; /* Red Cursor */
+            color: #ef4444;
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-        /* Scrollbar Hiding */
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; background: #18181b; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+
+        /* Utility for Disabled Buttons */
+        .btn-disabled { opacity: 0.5; cursor: not-allowed; }
     </style>
 </head>
 <body class="bg-zinc-950 text-zinc-300 overflow-hidden h-screen flex flex-col selection:bg-red-900 selection:text-white">
 
     <div class="scanline"></div>
 
-    <header class="h-12 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/50">
+    <header class="h-12 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/50 z-10 relative">
         <div class="flex items-center space-x-4">
             <span class="text-red-500 font-bold tracking-widest">KYAKZ.OS</span>
             <span class="text-xs text-zinc-500">// KERNEL v4.2</span>
         </div>
-        <div class="flex items-center space-x-6 text-xs text-zinc-500 font-bold">
+        <div class="hidden md:flex items-center space-x-6 text-xs text-zinc-500 font-bold">
             <div id="status-mem">MEM: 14MB</div>
             <div id="status-net">NET: CONNECTED</div>
-            <div class="text-red-500">LIVE</div>
+            <div class="text-red-500 animate-pulse">LIVE</div>
         </div>
     </header>
 
-    <main class="flex-1 flex">
+    <main class="flex-1 flex overflow-hidden">
         
-        <aside class="w-64 border-r border-zinc-800 flex flex-col bg-zinc-900/20">
+        <aside class="hidden md:flex w-64 border-r border-zinc-800 flex-col bg-zinc-900/20 overflow-y-auto">
             <div class="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Modules</div>
             
-            <nav class="flex-1 space-y-1 px-2">
-                <button onclick="bootModule('terminal')" class="w-full text-left px-3 py-2 text-sm text-white bg-zinc-800 rounded border-l-2 border-red-500 hover:bg-zinc-800 transition-all">
+            <nav class="flex-1 space-y-1 px-2" id="nav-container">
+                <button onclick="bootModule('terminal')" id="nav-terminal" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 transition-all bg-zinc-800 border-red-500 text-white">
                     > ./terminal.lua
                 </button>
-                <button onclick="bootModule('network')" class="w-full text-left px-3 py-2 text-sm text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded border-l-2 border-transparent transition-all">
+                <button onclick="bootModule('network')" id="nav-network" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
                     > ./replication.lua
                 </button>
-                <button onclick="bootModule('physics')" class="w-full text-left px-3 py-2 text-sm text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded border-l-2 border-transparent transition-all">
+                <button onclick="bootModule('physics')" id="nav-physics" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
                     > ./spatial_hash.lua
                 </button>
-                <button onclick="bootModule('data')" class="w-full text-left px-3 py-2 text-sm text-zinc-400 hover:text-white hover:bg-zinc-800/50 rounded border-l-2 border-transparent transition-all">
+                <button onclick="bootModule('data')" id="nav-data" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
                     > ./atomic_data.lua
                 </button>
             </nav>
@@ -80,12 +81,12 @@
             </div>
         </aside>
 
-        <section id="viewport" class="flex-1 bg-black/50 p-10 relative overflow-y-auto">
+        <section id="viewport" class="flex-1 bg-black/50 p-6 md:p-10 relative overflow-y-auto w-full">
             
-            <div id="terminal" class="max-w-3xl">
+            <div id="terminal" class="max-w-3xl mx-auto">
                 <div class="mb-8">
-                    <h1 class="text-5xl font-bold text-white mb-2">Lead Systems Architect</h1>
-                    <p class="text-xl text-zinc-400">Specialized in Luau Optimization & Engine Scalability.</p>
+                    <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Lead Systems Architect</h1>
+                    <p class="text-lg md:text-xl text-zinc-400">Specialized in Luau Optimization & Engine Scalability.</p>
                 </div>
 
                 <div class="bg-zinc-900 border border-zinc-700 rounded-lg p-6 font-mono text-sm shadow-2xl">
@@ -96,7 +97,7 @@
                         <span class="ml-2 text-zinc-500">grimworks_debug_console</span>
                     </div>
                     
-                    <div id="console-output" class="space-y-1 text-zinc-300 h-64 overflow-y-auto">
+                    <div id="console-output" class="space-y-1 text-zinc-300 h-64 overflow-y-auto custom-scroll">
                         <div class="text-green-500">[SYSTEM] Booting Kyakz.OS Kernel...</div>
                         <div class="text-zinc-500">[INFO] Loading assets... DONE (0.04s)</div>
                         <div class="text-zinc-500">[INFO] Connecting to Grimworks Database... SUCCESS</div>
@@ -105,672 +106,540 @@
                         <div><span class="text-red-500">root@kyakz:~$</span> <span class="cursor"></span></div>
                     </div>
                 </div>
-            </div>
-
-<div id="network" class="hidden h-full flex flex-col">
-    <div class="mb-6 flex justify-between items-end">
-        <div>
-            <h2 class="text-3xl font-bold text-white mb-1">Replication <span class="text-red-500">//</span> Lag Compensation</h2>
-            <p class="text-zinc-400 text-sm">Server-side hit registration algorithm for high-latency clients.</p>
-        </div>
-        <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
-            <button id="btn-algo-std" onclick="setAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">STANDARD</button>
-            <button id="btn-algo-kyakz" onclick="setAlgo('kyakz')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">KYAKZ REWIND</button>
-        </div>
-    </div>
-
-    <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-crosshair" id="canvas-container">
-        <canvas id="netCanvas" class="w-full h-full"></canvas>
-        
-        <div class="absolute top-4 left-4 pointer-events-none space-y-1">
-            <div class="text-xs font-mono text-zinc-500">SERVER_TICK: <span id="debug-tick" class="text-white">0</span></div>
-            <div class="text-xs font-mono text-zinc-500">BUFFER_SIZE: <span class="text-white">1024 FRAMES</span></div>
-        </div>
-
-        <div class="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur p-3 rounded border border-zinc-800 flex items-center space-x-4">
-            <span class="text-xs font-bold text-red-500 whitespace-nowrap">SIMULATED PING:</span>
-            <input type="range" min="0" max="1000" value="0" class="w-full accent-red-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer" id="pingSlider">
-            <span class="text-xs font-mono text-white w-16 text-right"><span id="pingValue">0</span>ms</span>
-        </div>
-    </div>
-
-    <div class="mt-6 grid grid-cols-2 gap-4 h-32">
-        <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-500">
-            <span class="text-purple-400">function</span> <span class="text-blue-400">VerifyHit</span>(player, target, timestamp)<br>
-            &nbsp;&nbsp;<span class="text-zinc-500">-- Standard Roblox Check (Fails at >100ms)</span><br>
-            &nbsp;&nbsp;<span class="text-purple-400">if</span> (target.Position - player.Aim).Magnitude < 5 <span class="text-purple-400">then</span><br>
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-green-400">return true</span><br>
-            &nbsp;&nbsp;<span class="text-purple-400">end</span><br>
-            <span class="text-purple-400">end</span>
-        </div>
-        <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-400 relative">
-             <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[10px] px-2 py-0.5 rounded-bl">ACTIVE: KYAKZ ALGO</div>
-             <span class="text-purple-400">function</span> <span class="text-blue-400">VerifyHitRewind</span>(player, target, ping)<br>
-             &nbsp;&nbsp;<span class="text-zinc-500">-- 1. Fetch historical position from Buffer</span><br>
-             &nbsp;&nbsp;<span class="text-purple-400">local</span> pastPos = <span class="text-yellow-400">PositionBuffer</span>:Get(os.clock() - ping)<br>
-             &nbsp;&nbsp;<span class="text-zinc-500">-- 2. Validate Hit against OLD position</span><br>
-             &nbsp;&nbsp;<span class="text-purple-400">if</span> (pastPos - player.Aim).Magnitude < 5 <span class="text-purple-400">then</span>...
-        </div>
-    </div>
-</div>
-
-<script>
-    // --- MODULE A: SCRIPT LOGIC ---
-    (function() {
-        const canvas = document.getElementById('netCanvas');
-        const ctx = canvas.getContext('2d');
-        const slider = document.getElementById('pingSlider');
-        const pingDisplay = document.getElementById('pingValue');
-        
-        // Resize Canvas to fit container
-        function resize() {
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-        }
-        window.addEventListener('resize', resize);
-        setTimeout(resize, 100); // Initial resize
-
-        // Game State
-        let algorithm = 'standard'; // 'standard' or 'kyakz'
-        let ping = 0;
-        let tick = 0;
-        
-        // The Target Object
-        const target = { x: 0, y: 0, radius: 20, speed: 4 };
-        
-        // The History Buffer (Stores where the target WAS)
-        // Format: [{x, y, tick}]
-        const positionBuffer = [];
-        const BUFFER_SIZE = 600; // Store last 600 frames (~10 seconds)
-
-        // Visual Effects (Hits/Misses)
-        const particles = [];
-
-        // 1. UPDATE LOOP (The "Server")
-        function update() {
-            tick++;
-            document.getElementById('debug-tick').innerText = tick;
-
-            // Move Target (Sine Wave Pattern)
-            target.x = canvas.width / 2 + Math.sin(tick * 0.02) * (canvas.width * 0.35);
-            target.y = canvas.height / 2 + Math.cos(tick * 0.03) * (canvas.height * 0.2);
-
-            // Save to Buffer (Server Memory)
-            positionBuffer.push({ x: target.x, y: target.y, tick: tick });
-            if (positionBuffer.length > BUFFER_SIZE) positionBuffer.shift();
-
-            // Update Ping
-            ping = parseInt(slider.value);
-            pingDisplay.innerText = ping;
-        }
-
-        // 2. DRAW LOOP (The "Client View")
-        function draw() {
-            // Clear Screen
-            ctx.fillStyle = '#18181b'; // Zinc-900
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw Grid (The "Engine" feel)
-            ctx.strokeStyle = '#27272a';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            for(let i=0; i<canvas.width; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i,canvas.height); }
-            for(let i=0; i<canvas.height; i+=40) { ctx.moveTo(0,i); ctx.lineTo(canvas.width,i); }
-            ctx.stroke();
-
-            // Draw the "Ghost" Target (Where the client THINKS the target is)
-            // This represents the delay. If Ping is 200ms, the client sees the target 200ms in the past.
-            const clientTick = Math.max(0, tick - (ping / 16)); // Approx 16ms per frame
-            const ghostIndex = Math.floor(positionBuffer.length - 1 - (ping / 16));
-            let ghostPos = target;
-            
-            if (ghostIndex >= 0 && ghostIndex < positionBuffer.length) {
-                ghostPos = positionBuffer[ghostIndex];
-            }
-
-            // Draw Target
-            // The "Real" Target (Server Position) - Only visible in Standard Mode or Debug
-            if (algorithm === 'standard') {
-                 ctx.fillStyle = '#3f3f46'; // Grey (Server Position)
-                 ctx.beginPath();
-                 ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2);
-                 ctx.fill();
-            }
-
-            // The "Client" Target (Red) - This is what the user aims at
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = '#ef4444';
-            ctx.fillStyle = '#ef4444';
-            ctx.beginPath();
-            ctx.arc(ghostPos.x, ghostPos.y, target.radius, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
-            // Draw Particles (Hits/Misses)
-            particles.forEach((p, i) => {
-                p.life--;
-                ctx.fillStyle = p.color;
-                ctx.globalAlpha = p.life / 30;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-                ctx.fill();
-                if (p.life <= 0) particles.splice(i, 1);
-            });
-            ctx.globalAlpha = 1;
-
-            requestAnimationFrame(draw);
-        }
-
-        // 3. INTERACTION (The "Shoot" Event)
-        canvas.addEventListener('mousedown', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-
-            let hit = false;
-
-            if (algorithm === 'standard') {
-                // STANDARD: Check vs CURRENT Server Position
-                // If ping is high, Mouse is at "Ghost", but Server is at "Target". MISS.
-                const dist = Math.hypot(mouseX - target.x, mouseY - target.y);
-                if (dist < target.radius) hit = true;
-            } else {
-                // KYAKZ ALGO: Rewind Time
-                // Find where the target WAS 'ping' ms ago
-                const ghostIndex = Math.floor(positionBuffer.length - 1 - (ping / 16));
-                if (ghostIndex >= 0) {
-                    const pastPos = positionBuffer[ghostIndex];
-                    const dist = Math.hypot(mouseX - pastPos.x, mouseY - pastPos.y);
-                    if (dist < target.radius) hit = true;
-                }
-            }
-
-            // Spawn Particles
-            particles.push({
-                x: mouseX, y: mouseY, 
-                color: hit ? '#22c55e' : '#71717a', // Green or Grey
-                radius: hit ? 10 : 4,
-                life: 30
-            });
-            
-            // Console Log for "Realism"
-            const consoleOut = document.getElementById('console-output');
-            const log = document.createElement('div');
-            log.innerHTML = hit 
-                ? `<span class="text-green-500">[HIT] Validated. Rewind: ${ping}ms</span>` 
-                : `<span class="text-zinc-600">[MISS] Desync detected.</span>`;
-            consoleOut.appendChild(log);
-            consoleOut.scrollTop = consoleOut.scrollHeight;
-        });
-
-        // Loop Helpers
-        setInterval(update, 16); // 60hz server tick
-        draw();
-
-        // Exposed Global for Buttons
-        window.setAlgo = function(type) {
-            algorithm = type;
-            // Update Button Styles
-            const btnStd = document.getElementById('btn-algo-std');
-            const btnKyakz = document.getElementById('btn-algo-kyakz');
-            
-            if (type === 'standard') {
-                btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
-                btnKyakz.className = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-            } else {
-                btnStd.className = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-                btnKyakz.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
-            }
-        };
-    })();
-</script>
-
-<div id="physics" class="hidden h-full flex flex-col">
-    <div class="mb-6 flex justify-between items-end">
-        <div>
-            <h2 class="text-3xl font-bold text-white mb-1">Spatial Physics <span class="text-red-500">//</span> Broadphase Optimization</h2>
-            <p class="text-zinc-400 text-sm">O(1) collision detection system for high-entity environments.</p>
-        </div>
-        <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
-            <button id="btn-phy-std" onclick="setPhyAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">BRUTE FORCE O(N²)</button>
-            <button id="btn-phy-kyakz" onclick="setPhyAlgo('spatial')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">SPATIAL HASH O(1)</button>
-        </div>
-    </div>
-
-    <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden" id="phy-canvas-container">
-        <canvas id="phyCanvas" class="w-full h-full"></canvas>
-        
-        <div class="absolute top-4 left-4 pointer-events-none space-y-1">
-            <div class="text-xs font-mono text-zinc-500">ENTITIES: <span class="text-white">250</span></div>
-            <div class="text-xs font-mono text-zinc-500">CHECKS/FRAME: <span id="phy-checks" class="text-red-500 font-bold">0</span></div>
-            <div class="text-xs font-mono text-zinc-500">OPTIMIZATION: <span id="phy-opt" class="text-white">0%</span></div>
-        </div>
-    </div>
-
-    <div class="mt-6 grid grid-cols-2 gap-4 h-32">
-        <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-500 opacity-50">
-            <span class="text-purple-400">for</span> i, partA <span class="text-purple-400">in</span> pairs(parts) <span class="text-purple-400">do</span><br>
-            &nbsp;&nbsp;<span class="text-purple-400">for</span> j, partB <span class="text-purple-400">in</span> pairs(parts) <span class="text-purple-400">do</span><br>
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-zinc-500">-- EXPENSIVE: Checks everything</span><br>
-            &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-purple-400">if</span> (partA - partB).Magnitude < 5 <span class="text-purple-400">then</span>...
-        </div>
-        <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-400 relative">
-             <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[10px] px-2 py-0.5 rounded-bl">ACTIVE: SPATIAL GRID</div>
-             <span class="text-purple-400">local</span> cell = <span class="text-blue-400">GetCell</span>(partA.Position)<br>
-             <span class="text-zinc-500">-- OPTIMIZED: Only check local neighbors</span><br>
-             <span class="text-purple-400">for</span> _, neighbor <span class="text-purple-400">in</span> pairs(Grid[cell]) <span class="text-purple-400">do</span><br>
-             &nbsp;&nbsp;<span class="text-purple-400">if</span> (partA - neighbor).Magnitude < 5 <span class="text-purple-400">then</span>...
-        </div>
-    </div>
-</div>
-
-<script>
-    // --- MODULE C: SPATIAL PHYSICS LOGIC ---
-    (function() {
-        const canvas = document.getElementById('phyCanvas');
-        const ctx = canvas.getContext('2d');
-        const statsChecks = document.getElementById('phy-checks');
-        const statsOpt = document.getElementById('phy-opt');
-
-        let width, height;
-        function resize() {
-            if(!canvas.parentElement) return;
-            width = canvas.parentElement.clientWidth;
-            height = canvas.parentElement.clientHeight;
-            canvas.width = width;
-            canvas.height = height;
-        }
-        window.addEventListener('resize', resize);
-        // Force resize loop to catch tab switches
-        setInterval(resize, 1000); 
-
-        // Config
-        let mode = 'standard'; // 'standard' or 'spatial'
-        const PARTICLE_COUNT = 250;
-        const CELL_SIZE = 80;
-        const CONNECT_DIST = 40;
-
-        // Data
-        const particles = [];
-        for(let i=0; i<PARTICLE_COUNT; i++) {
-            particles.push({
-                x: Math.random() * 800,
-                y: Math.random() * 600,
-                vx: (Math.random() - 0.5) * 2,
-                vy: (Math.random() - 0.5) * 2
-            });
-        }
-
-        function updateAndDraw() {
-            // Clear
-            ctx.fillStyle = '#18181b';
-            ctx.fillRect(0,0,width,height);
-
-            // Update Positions
-            particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                if(p.x < 0 || p.x > width) p.vx *= -1;
-                if(p.y < 0 || p.y > height) p.vy *= -1;
-            });
-
-            let checks = 0;
-
-            if (mode === 'standard') {
-                // --- BRUTE FORCE (O(N^2)) ---
-                ctx.strokeStyle = 'rgba(239, 68, 68, 0.05)'; // Faint red lines
-                ctx.lineWidth = 1;
                 
-                // Draw all particles
-                ctx.fillStyle = '#71717a';
-                particles.forEach(p => {
-                    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
-                });
-
-                // The Killer Loop
-                ctx.beginPath();
-                for(let i=0; i<particles.length; i++) {
-                    for(let j=i+1; j<particles.length; j++) {
-                        checks++;
-                        const dx = particles[i].x - particles[j].x;
-                        const dy = particles[i].y - particles[j].y;
-                        const dist = Math.sqrt(dx*dx + dy*dy);
-                        
-                        // Draw line if close (Collision)
-                        if(dist < CONNECT_DIST) {
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                        }
-                    }
-                }
-                ctx.stroke();
-
-            } else {
-                // --- SPATIAL HASH (O(1)) ---
-                
-                // 1. Draw Grid
-                ctx.strokeStyle = '#27272a';
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                for(let x=0; x<width; x+=CELL_SIZE) { ctx.moveTo(x,0); ctx.lineTo(x,height); }
-                for(let y=0; y<height; y+=CELL_SIZE) { ctx.moveTo(0,y); ctx.lineTo(width,y); }
-                ctx.stroke();
-
-                // 2. Build Hash Map
-                const grid = {};
-                particles.forEach(p => {
-                    // Calculate Grid Key "X,Y"
-                    const key = `${Math.floor(p.x/CELL_SIZE)},${Math.floor(p.y/CELL_SIZE)}`;
-                    if(!grid[key]) grid[key] = [];
-                    grid[key].push(p);
-                });
-
-                // 3. Draw & Check Neighbors
-                ctx.fillStyle = '#22c55e'; // Green dots
-                ctx.strokeStyle = 'rgba(34, 197, 94, 0.5)'; // Green lines
-
-                particles.forEach(p => {
-                    ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
-                    
-                    const cellX = Math.floor(p.x/CELL_SIZE);
-                    const cellY = Math.floor(p.y/CELL_SIZE);
-
-                    // Only check local cell and immediate neighbors (3x3 grid)
-                    for(let x=-1; x<=1; x++) {
-                        for(let y=-1; y<=1; y++) {
-                            const key = `${cellX+x},${cellY+y}`;
-                            if(grid[key]) {
-                                grid[key].forEach(neighbor => {
-                                    if(neighbor === p) return;
-                                    checks++; // Increment Check Count
-                                    
-                                    const dx = p.x - neighbor.x;
-                                    const dy = p.y - neighbor.y;
-                                    const dist = Math.sqrt(dx*dx + dy*dy);
-                                    
-                                    if(dist < CONNECT_DIST) {
-                                        ctx.beginPath();
-                                        ctx.moveTo(p.x, p.y);
-                                        ctx.lineTo(neighbor.x, neighbor.y);
-                                        ctx.stroke();
-                                    }
-                                });
-                            }
-                        }
-                    }
-                });
-            }
-
-            // Update Stats
-            statsChecks.innerText = checks.toLocaleString();
-            
-            // Calculate Optimization %
-            // Worst case N*(N-1)/2 approx 31,000 checks
-            const worstCase = (PARTICLE_COUNT * (PARTICLE_COUNT - 1)) / 2;
-            if(mode === 'spatial') {
-                const saving = Math.round(((worstCase - checks) / worstCase) * 100);
-                statsOpt.innerText = `${saving}% FASTER`;
-                statsOpt.className = "text-green-500 font-bold";
-                statsChecks.className = "text-green-500 font-bold";
-            } else {
-                statsOpt.innerText = "0% (BASELINE)";
-                statsOpt.className = "text-red-500 font-bold";
-                statsChecks.className = "text-red-500 font-bold";
-            }
-
-            requestAnimationFrame(updateAndDraw);
-        }
-
-        // Global Exposed Function for Buttons
-        window.setPhyAlgo = function(type) {
-            mode = type;
-            const btnStd = document.getElementById('btn-phy-std');
-            const btnKyakz = document.getElementById('btn-phy-kyakz');
-            
-            if (type === 'standard') {
-                btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
-                btnKyakz.className = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-            } else {
-                btnStd.className = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-                btnKyakz.className = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
-            }
-        };
-
-        // Start Loop
-        updateAndDraw();
-    })();
-</script>
-
-<div id="data" class="hidden h-full flex flex-col">
-    <div class="mb-6 flex justify-between items-end">
-        <div>
-            <h2 class="text-3xl font-bold text-white mb-1">Atomic Data <span class="text-red-500">//</span> Session Locking</h2>
-            <p class="text-zinc-400 text-sm">ACID-compliant transaction system to prevent data loss & dupes.</p>
-        </div>
-        <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
-            <button id="btn-data-std" onclick="setDataAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">UNSAFE SAVE</button>
-            <button id="btn-data-kyakz" onclick="setDataAlgo('atomic')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">ATOMIC LOCK</button>
-        </div>
-    </div>
-
-    <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden flex flex-col items-center justify-center relative">
-        
-        <div class="flex items-center justify-between w-full max-w-2xl px-10 relative z-10">
-            <div class="text-center">
-                <div class="w-24 h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-3xl mb-2 relative" id="wallet-a-bg">
-                    💰
-                    <div class="absolute -top-2 -right-2 bg-blue-500 text-xs font-bold px-2 py-0.5 rounded text-white">SENDER</div>
-                </div>
-                <div class="font-mono text-xl font-bold text-white">$<span id="wallet-a-val">1000</span></div>
-            </div>
-
-            <div class="flex-1 h-1 bg-zinc-700 mx-8 relative">
-                <div id="data-packet" class="w-8 h-8 bg-yellow-500 rounded-full absolute -top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-xs font-bold text-black opacity-0 transition-all duration-100">
-                    $
+                <div class="mt-8 md:hidden grid grid-cols-1 gap-2">
+                     <p class="text-xs text-zinc-500 uppercase font-bold mb-2">Select Module:</p>
+                     <button onclick="bootModule('network')" class="bg-zinc-800 p-3 rounded text-left border border-zinc-700 text-white">Replication Layer</button>
+                     <button onclick="bootModule('physics')" class="bg-zinc-800 p-3 rounded text-left border border-zinc-700 text-white">Spatial Physics</button>
+                     <button onclick="bootModule('data')" class="bg-zinc-800 p-3 rounded text-left border border-zinc-700 text-white">Atomic Data</button>
                 </div>
             </div>
 
-            <div class="text-center">
-                <div class="w-24 h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-3xl mb-2" id="wallet-b-bg">
-                    🏦
-                    <div class="absolute -top-2 -right-2 bg-green-500 text-xs font-bold px-2 py-0.5 rounded text-white">RECEIVER</div>
+            <div id="network" class="hidden h-full flex flex-col max-w-5xl mx-auto">
+                <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Replication <span class="text-red-500">//</span> Lag Compensation</h2>
+                        <p class="text-zinc-400 text-sm">Server-side hit registration algorithm for high-latency clients.</p>
+                    </div>
+                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
+                        <button id="btn-algo-std" onclick="setAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">STANDARD</button>
+                        <button id="btn-algo-kyakz" onclick="setAlgo('kyakz')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">KYAKZ REWIND</button>
+                    </div>
                 </div>
-                <div class="font-mono text-xl font-bold text-white">$<span id="wallet-b-val">0</span></div>
+
+                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-crosshair min-h-[300px]" id="canvas-container">
+                    <canvas id="netCanvas" class="w-full h-full"></canvas>
+                    <div class="absolute top-4 left-4 pointer-events-none space-y-1">
+                        <div class="text-xs font-mono text-zinc-500">SERVER_TICK: <span id="debug-tick" class="text-white">0</span></div>
+                        <div class="text-xs font-mono text-zinc-500">BUFFER_SIZE: <span class="text-white">1024 FRAMES</span></div>
+                    </div>
+                    <div class="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur p-3 rounded border border-zinc-800 flex items-center space-x-4">
+                        <span class="text-xs font-bold text-red-500 whitespace-nowrap">PING:</span>
+                        <input type="range" min="0" max="1000" value="0" class="w-full accent-red-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer" id="pingSlider">
+                        <span class="text-xs font-mono text-white w-16 text-right"><span id="pingValue">0</span>ms</span>
+                    </div>
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-32">
+                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-500">
+                        <span class="text-purple-400">function</span> <span class="text-blue-400">VerifyHit</span>(player, target)<br>
+                        &nbsp;&nbsp;<span class="text-zinc-500">-- Fails at >100ms</span><br>
+                        &nbsp;&nbsp;<span class="text-purple-400">if</span> (target.Pos - player.Aim).Mag < 5 <span class="text-purple-400">then</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-green-400">return true</span><br>
+                        &nbsp;&nbsp;<span class="text-purple-400">end</span>
+                    </div>
+                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-400 relative">
+                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[10px] px-2 py-0.5 rounded-bl">ACTIVE</div>
+                         <span class="text-purple-400">local</span> pastPos = <span class="text-yellow-400">Buffer</span>:Get(now - ping)<br>
+                         <span class="text-purple-400">if</span> (pastPos - player.Aim).Mag < 5 <span class="text-purple-400">then</span><br>
+                         &nbsp;&nbsp;<span class="text-green-400">return true</span> <span class="text-zinc-500">-- Validated</span><br>
+                         <span class="text-purple-400">end</span>
+                    </div>
+                </div>
             </div>
-        </div>
 
-        <div class="mt-12 flex space-x-4">
-            <button onclick="startTransaction()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded shadow-lg transition-all" id="btn-transfer">
-                INITIATE TRANSFER ($500)
-            </button>
-            <button onclick="simulateCrash()" class="bg-red-900/50 hover:bg-red-600 text-red-200 hover:text-white border border-red-800 font-bold py-2 px-6 rounded shadow-lg transition-all" id="btn-crash">
-                ⚠ SIMULATE SERVER CRASH
-            </button>
-        </div>
+            <div id="physics" class="hidden h-full flex flex-col max-w-5xl mx-auto">
+                <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Spatial Physics <span class="text-red-500">//</span> Broadphase</h2>
+                        <p class="text-zinc-400 text-sm">O(1) collision detection system for high-entity environments.</p>
+                    </div>
+                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
+                        <button id="btn-phy-std" onclick="setPhyAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">O(N²)</button>
+                        <button id="btn-phy-kyakz" onclick="setPhyAlgo('spatial')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">SPATIAL O(1)</button>
+                    </div>
+                </div>
 
-        <div id="data-status" class="mt-8 font-mono text-sm text-zinc-500 h-6">Waiting for transaction...</div>
+                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden min-h-[300px]" id="phy-canvas-container">
+                    <canvas id="phyCanvas" class="w-full h-full"></canvas>
+                    <div class="absolute top-4 left-4 pointer-events-none space-y-1">
+                        <div class="text-xs font-mono text-zinc-500">ENTITIES: <span class="text-white">250</span></div>
+                        <div class="text-xs font-mono text-zinc-500">CHECKS: <span id="phy-checks" class="text-red-500 font-bold">0</span></div>
+                        <div class="text-xs font-mono text-zinc-500">OPT: <span id="phy-opt" class="text-white">0%</span></div>
+                    </div>
+                </div>
 
-    </div>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-32">
+                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-500 opacity-50">
+                        <span class="text-purple-400">for</span> i, A <span class="text-purple-400">in</span> pairs(parts) <span class="text-purple-400">do</span><br>
+                        &nbsp;&nbsp;<span class="text-purple-400">for</span> j, B <span class="text-purple-400">in</span> pairs(parts) <span class="text-purple-400">do</span><br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;<span class="text-zinc-500">-- EXPENSIVE LOOP</span>
+                    </div>
+                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-400 relative">
+                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[10px] px-2 py-0.5 rounded-bl">ACTIVE</div>
+                         <span class="text-purple-400">local</span> cell = <span class="text-blue-400">GetCell</span>(pos)<br>
+                         <span class="text-purple-400">for</span> _, neighbor <span class="text-purple-400">in</span> pairs(Grid[cell]) <span class="text-purple-400">do</span><br>
+                         &nbsp;&nbsp;<span class="text-zinc-500">-- CHECKS NEIGHBORS ONLY</span>
+                    </div>
+                </div>
+            </div>
 
-    <div class="mt-6 grid grid-cols-2 gap-4 h-32">
-        <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-500">
-            <span class="text-purple-400">function</span> <span class="text-blue-400">Transfer</span>(from, to, amount)<br>
-            &nbsp;&nbsp;<span class="text-zinc-500">-- UNSAFE: No rollback logic</span><br>
-            &nbsp;&nbsp;from.Cash -= amount<br>
-            &nbsp;&nbsp;<span class="text-blue-400">wait</span>(2) <span class="text-zinc-500">-- Simulating network delay</span><br>
-            &nbsp;&nbsp;<span class="text-red-500">-- CRASH HERE = MONEY LOST FOREVER</span><br>
-            &nbsp;&nbsp;to.Cash += amount
-        </div>
-        <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-400 relative">
-             <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[10px] px-2 py-0.5 rounded-bl">ACTIVE: ATOMIC LOCK</div>
-             <span class="text-purple-400">return</span> <span class="text-yellow-400">DataStore</span>:UpdateAsync(key, <span class="text-purple-400">function</span>(old)<br>
-             &nbsp;&nbsp;<span class="text-purple-400">if</span> old.SessionLock ~= <span class="text-blue-400">JobId</span> <span class="text-purple-400">then</span> <span class="text-purple-400">return nil</span> <span class="text-purple-400">end</span><br>
-             &nbsp;&nbsp;<span class="text-zinc-500">-- ATOMIC: Either BOTH happen or NEITHER happen</span><br>
-             &nbsp;&nbsp;<span class="text-purple-400">local</span> new = old:Clone()<br>
-             &nbsp;&nbsp;new.Cash = old.Cash + amount<br>
-             &nbsp;&nbsp;<span class="text-purple-400">return</span> new
-        </div>
-    </div>
-</div>
+            <div id="data" class="hidden h-full flex flex-col max-w-5xl mx-auto">
+                <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                    <div>
+                        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Atomic Data <span class="text-red-500">//</span> Session Locking</h2>
+                        <p class="text-zinc-400 text-sm">ACID-compliant transaction system.</p>
+                    </div>
+                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
+                        <button id="btn-data-std" onclick="setDataAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">UNSAFE</button>
+                        <button id="btn-data-kyakz" onclick="setDataAlgo('atomic')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">ATOMIC</button>
+                    </div>
+                </div>
 
-<script>
-    // --- MODULE D: ATOMIC DATA LOGIC ---
-    (function() {
-        let mode = 'standard';
-        let walletA = 1000;
-        let walletB = 0;
-        let inProgress = false;
-        let crashed = false;
-
-        const elA = document.getElementById('wallet-a-val');
-        const elB = document.getElementById('wallet-b-val');
-        const packet = document.getElementById('data-packet');
-        const status = document.getElementById('data-status');
-        const bgA = document.getElementById('wallet-a-bg');
-
-        // Reset State
-        function reset() {
-            walletA = 1000; walletB = 0;
-            updateUI();
-            packet.style.opacity = '0';
-            packet.style.left = '0%';
-            packet.className = "w-8 h-8 bg-yellow-500 rounded-full absolute -top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-xs font-bold text-black transition-all duration-100";
-            inProgress = false;
-            crashed = false;
-            status.innerText = "Ready.";
-            status.className = "mt-8 font-mono text-sm text-zinc-500 h-6";
-            bgA.style.borderColor = "#52525b"; // Zinc-600
-        }
-
-        function updateUI() {
-            elA.innerText = walletA;
-            elB.innerText = walletB;
-        }
-
-        // Global functions for buttons
-        window.startTransaction = function() {
-            if(inProgress) return;
-            if(walletA < 500) reset(); // Auto reset if empty
-            
-            inProgress = true;
-            crashed = false;
-            
-            // Step 1: Deduct from A
-            walletA -= 500;
-            updateUI();
-            status.innerText = "Step 1: Funds deducted from Sender...";
-            status.className = "mt-8 font-mono text-sm text-blue-400 h-6";
-
-            // Step 2: Animate Packet
-            packet.style.opacity = '1';
-            packet.style.transition = 'left 3s linear';
-            
-            // Allow browser to register the transition change
-            setTimeout(() => {
-                packet.style.left = '100%'; 
-            }, 50);
-
-            // Step 3: Arrival (after 3s)
-            window.transactionTimer = setTimeout(() => {
-                if(!crashed) {
-                    walletB += 500;
-                    updateUI();
-                    status.innerText = "SUCCESS: Transaction Complete.";
-                    status.className = "mt-8 font-mono text-sm text-green-500 h-6";
-                    packet.style.opacity = '0';
-                    inProgress = false;
-                }
-            }, 3000);
-        };
-
-        window.simulateCrash = function() {
-            if(!inProgress) return;
-            crashed = true;
-            clearTimeout(window.transactionTimer);
-            
-            // Stop Packet visual
-            const currentLeft = packet.getBoundingClientRect().left;
-            const parentLeft = packet.parentElement.getBoundingClientRect().left;
-            const percent = ((currentLeft - parentLeft) / packet.parentElement.offsetWidth) * 100;
-            
-            packet.style.transition = 'none';
-            packet.style.left = percent + '%';
-            
-            // CRASH EFFECT
-            status.innerText = "⚠ CRASH DETECTED: CONNECTION LOST";
-            status.className = "mt-8 font-mono text-sm text-red-500 h-6 font-bold blink";
-            packet.className = "w-8 h-8 bg-red-600 rounded-full absolute -top-3.5 shadow-[0_0_15px_rgba(220,38,38,0.8)] flex items-center justify-center text-xs font-bold text-white";
-            packet.innerText = "!";
-
-            setTimeout(() => {
-                if(mode === 'standard') {
-                    // DATA LOSS SCENARIO
-                    status.innerText = "FAILURE: Data Lost. Money gone from A, never reached B.";
-                    packet.style.opacity = '0';
-                    inProgress = false;
-                } else {
-                    // ATOMIC ROLLBACK SCENARIO
-                    status.innerText = "ATOMIC LOCK: Rolling back transaction...";
-                    status.className = "mt-8 font-mono text-sm text-yellow-500 h-6";
+                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden flex flex-col items-center justify-center min-h-[400px]">
                     
-                    // Animate return
-                    packet.style.transition = 'left 1s ease-out';
-                    packet.style.left = '0%';
-                    
-                    setTimeout(() => {
-                        walletA += 500; // REFUND
-                        updateUI();
-                        status.innerText = "SAFE: Rollback Complete. No Data Lost.";
-                        status.className = "mt-8 font-mono text-sm text-green-500 h-6";
-                        bgA.style.borderColor = "#22c55e"; // Green Border
-                        packet.style.opacity = '0';
-                        inProgress = false;
-                    }, 1000);
-                }
-            }, 1000);
-        };
+                    <div class="flex items-center justify-between w-full max-w-2xl px-4 md:px-10 relative z-10">
+                        <div class="text-center">
+                            <div class="w-16 h-16 md:w-24 md:h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-2xl md:text-3xl mb-2 relative transition-all duration-300" id="wallet-a-bg">
+                                💰
+                                <div class="absolute -top-2 -right-2 bg-blue-500 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded text-white">SENDER</div>
+                            </div>
+                            <div class="font-mono text-lg md:text-xl font-bold text-white">$<span id="wallet-a-val">1000</span></div>
+                        </div>
 
-        window.setDataAlgo = function(type) {
-            mode = type;
-            reset();
-            const btnStd = document.getElementById('btn-data-std');
-            const btnKyakz = document.getElementById('btn-data-kyakz');
-            
-            if (type === 'standard') {
-                btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
-                btnKyakz.className = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-            } else {
-                btnStd.className = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-                btnKyakz.className = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
-            }
-        };
-    })();
-</script>
+                        <div class="flex-1 h-1 bg-zinc-700 mx-4 md:mx-8 relative">
+                            <div id="data-packet" class="w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black opacity-0">
+                                $
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <div class="w-16 h-16 md:w-24 md:h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-2xl md:text-3xl mb-2" id="wallet-b-bg">
+                                🏦
+                                <div class="absolute -top-2 -right-2 bg-green-500 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded text-white">RECEIVER</div>
+                            </div>
+                            <div class="font-mono text-lg md:text-xl font-bold text-white">$<span id="wallet-b-val">0</span></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-12 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                        <button onclick="startTransaction()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded shadow-lg transition-all text-xs md:text-sm">
+                            INITIATE TRANSFER
+                        </button>
+                        <button onclick="simulateCrash()" id="btn-crash" class="btn-disabled bg-red-900/50 text-red-200 border border-red-800 font-bold py-2 px-6 rounded shadow-lg transition-all text-xs md:text-sm">
+                            ⚠ SIMULATE CRASH
+                        </button>
+                    </div>
+
+                    <div id="data-status" class="mt-8 font-mono text-xs md:text-sm text-zinc-500 h-6">Waiting...</div>
+                </div>
+
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 h-auto md:h-32">
+                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-500">
+                        from.Cash -= amount<br>
+                        <span class="text-blue-400">wait</span>(2)<br>
+                        <span class="text-red-500">-- CRASH = LOSS</span><br>
+                        to.Cash += amount
+                    </div>
+                    <div class="bg-black/40 border border-zinc-800 p-3 rounded font-mono text-xs overflow-hidden text-zinc-400 relative">
+                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[10px] px-2 py-0.5 rounded-bl">ACTIVE</div>
+                         <span class="text-yellow-400">DataStore</span>:UpdateAsync(key, <span class="text-purple-400">fn</span>(old)<br>
+                         <span class="text-purple-400">if</span> Locked <span class="text-purple-400">then return</span><br>
+                         <span class="text-zinc-500">-- SAFE ROLLBACK</span>
+                    </div>
+                </div>
+            </div>
 
         </section>
     </main>
 
-<script>
-        // Simulate System Noise
-        const memDisplay = document.getElementById('status-mem');
-        setInterval(() => {
-            memDisplay.innerText = `MEM: ${Math.floor(Math.random() * 5 + 12)}MB`;
-        }, 2000);
+    <script>
+        // --- 1. UTILITY: High DPI Canvas Scaler ---
+        function setupCanvas(canvas) {
+            if(!canvas) return null;
+            const ctx = canvas.getContext('2d');
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            
+            ctx.scale(dpr, dpr);
+            return { ctx, width: rect.width, height: rect.height };
+        }
 
-        // Tab Switching Logic
+        // --- 2. AUDIO SYSTEM ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            if (type === 'click') {
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+            }
+            if (type === 'error') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+                osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            }
+        }
+
+        // --- 3. MODULE: NETWORK ---
+        (function() {
+            const canvas = document.getElementById('netCanvas');
+            const slider = document.getElementById('pingSlider');
+            const pingDisplay = document.getElementById('pingValue');
+            let algorithm = 'standard';
+            let tick = 0;
+            const positionBuffer = [];
+            const target = { x: 0, y: 0, radius: 20 };
+            const particles = [];
+
+            function loop() {
+                const { ctx, width, height } = setupCanvas(canvas);
+                tick++;
+                document.getElementById('debug-tick').innerText = tick;
+
+                // Logic
+                target.x = width / 2 + Math.sin(tick * 0.02) * (width * 0.35);
+                target.y = height / 2 + Math.cos(tick * 0.03) * (height * 0.2);
+                positionBuffer.push({ x: target.x, y: target.y });
+                if (positionBuffer.length > 600) positionBuffer.shift();
+
+                const ping = parseInt(slider.value);
+                pingDisplay.innerText = ping;
+
+                // Draw
+                ctx.fillStyle = '#18181b'; ctx.fillRect(0, 0, width, height);
+                
+                // Grid
+                ctx.strokeStyle = '#27272a'; ctx.beginPath();
+                for(let i=0; i<width; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i,height); }
+                for(let i=0; i<height; i+=40) { ctx.moveTo(0,i); ctx.lineTo(width,i); }
+                ctx.stroke();
+
+                // Ghost
+                const ghostIndex = Math.floor(positionBuffer.length - 1 - (ping / 16));
+                const ghostPos = positionBuffer[Math.max(0, ghostIndex)] || target;
+
+                // Standard Target
+                if (algorithm === 'standard') {
+                    ctx.fillStyle = '#3f3f46'; ctx.beginPath();
+                    ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2); ctx.fill();
+                }
+
+                // Client Target
+                ctx.shadowBlur = 15; ctx.shadowColor = '#ef4444';
+                ctx.fillStyle = '#ef4444'; ctx.beginPath();
+                ctx.arc(ghostPos.x, ghostPos.y, target.radius, 0, Math.PI * 2); ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Particles
+                particles.forEach((p, i) => {
+                    p.life--;
+                    ctx.fillStyle = p.color; ctx.globalAlpha = p.life / 30;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
+                    if (p.life <= 0) particles.splice(i, 1);
+                });
+                ctx.globalAlpha = 1;
+
+                requestAnimationFrame(loop);
+            }
+            loop();
+
+            // Click Handler
+            canvas.addEventListener('mousedown', (e) => {
+                playSound('click');
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+                const ping = parseInt(slider.value);
+                let hit = false;
+
+                if (algorithm === 'standard') {
+                    const dist = Math.hypot(mouseX - target.x, mouseY - target.y);
+                    if (dist < target.radius) hit = true;
+                } else {
+                    const ghostIndex = Math.floor(positionBuffer.length - 1 - (ping / 16));
+                    const pastPos = positionBuffer[Math.max(0, ghostIndex)] || target;
+                    const dist = Math.hypot(mouseX - pastPos.x, mouseY - pastPos.y);
+                    if (dist < target.radius) hit = true;
+                }
+
+                particles.push({
+                    x: mouseX, y: mouseY, 
+                    color: hit ? '#22c55e' : '#71717a',
+                    radius: hit ? 10 : 4, life: 30
+                });
+            });
+
+            window.setAlgo = function(type) {
+                algorithm = type;
+                playSound('click');
+                const btnStd = document.getElementById('btn-algo-std');
+                const btnKyakz = document.getElementById('btn-algo-kyakz');
+                const active = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
+                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+                if(type === 'standard') { btnStd.className = active; btnKyakz.className = inactive; }
+                else { btnStd.className = inactive; btnKyakz.className = active; }
+            };
+        })();
+
+        // --- 4. MODULE: PHYSICS ---
+        (function() {
+            const canvas = document.getElementById('phyCanvas');
+            const statsChecks = document.getElementById('phy-checks');
+            const statsOpt = document.getElementById('phy-opt');
+            let mode = 'standard';
+            const particles = Array.from({length: 250}, () => ({
+                x: Math.random() * 800, y: Math.random() * 600,
+                vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2
+            }));
+
+            function loop() {
+                const { ctx, width, height } = setupCanvas(canvas);
+                
+                // Physics Update
+                particles.forEach(p => {
+                    p.x += p.vx; p.y += p.vy;
+                    // Wall Bounce & Clamp
+                    if(p.x < 0) { p.x = 0; p.vx *= -1; }
+                    if(p.x > width) { p.x = width; p.vx *= -1; }
+                    if(p.y < 0) { p.y = 0; p.vy *= -1; }
+                    if(p.y > height) { p.y = height; p.vy *= -1; }
+                });
+
+                ctx.fillStyle = '#18181b'; ctx.fillRect(0,0,width,height);
+                let checks = 0;
+
+                if (mode === 'standard') {
+                    ctx.fillStyle = '#71717a';
+                    particles.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill(); });
+                    ctx.strokeStyle = 'rgba(239, 68, 68, 0.05)';
+                    ctx.beginPath();
+                    for(let i=0; i<particles.length; i++) {
+                        for(let j=i+1; j<particles.length; j++) {
+                            checks++;
+                            if(Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y) < 40) {
+                                ctx.moveTo(particles[i].x, particles[i].y);
+                                ctx.lineTo(particles[j].x, particles[j].y);
+                            }
+                        }
+                    }
+                    ctx.stroke();
+                } else {
+                    const CELL = 80;
+                    ctx.strokeStyle = '#27272a'; ctx.beginPath();
+                    for(let x=0; x<width; x+=CELL) { ctx.moveTo(x,0); ctx.lineTo(x,height); }
+                    for(let y=0; y<height; y+=CELL) { ctx.moveTo(0,y); ctx.lineTo(width,y); }
+                    ctx.stroke();
+
+                    const grid = {};
+                    particles.forEach(p => {
+                        const key = `${Math.floor(p.x/CELL)},${Math.floor(p.y/CELL)}`;
+                        if(!grid[key]) grid[key] = [];
+                        grid[key].push(p);
+                    });
+
+                    ctx.fillStyle = '#22c55e'; ctx.strokeStyle = 'rgba(34, 197, 94, 0.5)';
+                    particles.forEach(p => {
+                        ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+                        const cx = Math.floor(p.x/CELL), cy = Math.floor(p.y/CELL);
+                        for(let x=-1; x<=1; x++) {
+                            for(let y=-1; y<=1; y++) {
+                                const cell = grid[`${cx+x},${cy+y}`];
+                                if(cell) {
+                                    cell.forEach(n => {
+                                        if(n===p) return;
+                                        checks++;
+                                        if(Math.hypot(p.x-n.x, p.y-n.y) < 40) {
+                                            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(n.x, n.y); ctx.stroke();
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    });
+                }
+
+                statsChecks.innerText = checks.toLocaleString();
+                const worst = (250 * 249) / 2;
+                if(mode === 'spatial') {
+                    statsOpt.innerText = `${Math.round(((worst - checks)/worst)*100)}% FASTER`;
+                    statsOpt.className = "text-green-500 font-bold";
+                    statsChecks.className = "text-green-500 font-bold";
+                } else {
+                    statsOpt.innerText = "0% (BASELINE)";
+                    statsOpt.className = "text-red-500 font-bold";
+                    statsChecks.className = "text-red-500 font-bold";
+                }
+                requestAnimationFrame(loop);
+            }
+            loop();
+
+            window.setPhyAlgo = function(type) {
+                mode = type;
+                playSound('click');
+                const btnStd = document.getElementById('btn-phy-std');
+                const btnKyakz = document.getElementById('btn-phy-kyakz');
+                const active = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
+                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+                if(type === 'standard') { 
+                    btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all"; 
+                    btnKyakz.className = inactive; 
+                } else { 
+                    btnStd.className = inactive; 
+                    btnKyakz.className = active; 
+                }
+            };
+        })();
+
+        // --- 5. MODULE: DATA ---
+        (function() {
+            let mode = 'standard';
+            let walletA = 1000;
+            let walletB = 0;
+            let inProgress = false;
+            let crashed = false;
+
+            const elA = document.getElementById('wallet-a-val');
+            const elB = document.getElementById('wallet-b-val');
+            const packet = document.getElementById('data-packet');
+            const status = document.getElementById('data-status');
+            const bgA = document.getElementById('wallet-a-bg');
+            const crashBtn = document.getElementById('btn-crash');
+
+            function updateUI() { elA.innerText = walletA; elB.innerText = walletB; }
+
+            function reset() {
+                walletA = 1000; walletB = 0; updateUI();
+                packet.style.opacity = '0'; packet.style.left = '0%';
+                packet.className = "w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black transition-all duration-100";
+                inProgress = false; crashed = false;
+                status.innerText = "Ready."; status.className = "mt-8 font-mono text-xs md:text-sm text-zinc-500 h-6";
+                bgA.style.borderColor = "#52525b";
+                crashBtn.classList.add('btn-disabled');
+                crashBtn.classList.remove('hover:bg-red-600', 'hover:text-white');
+            }
+
+            window.startTransaction = function() {
+                if(inProgress) return;
+                playSound('click');
+                if(walletA < 500) reset();
+                inProgress = true; crashed = false;
+                
+                crashBtn.classList.remove('btn-disabled');
+                crashBtn.classList.add('hover:bg-red-600', 'hover:text-white');
+
+                walletA -= 500; updateUI();
+                status.innerText = "Sending..."; status.className = "mt-8 font-mono text-xs md:text-sm text-blue-400 h-6";
+                packet.style.opacity = '1'; packet.style.transition = 'left 3s linear';
+                setTimeout(() => { packet.style.left = '100%'; }, 50);
+
+                window.transactionTimer = setTimeout(() => {
+                    if(!crashed) {
+                        walletB += 500; updateUI();
+                        status.innerText = "SUCCESS."; status.className = "mt-8 font-mono text-xs md:text-sm text-green-500 h-6";
+                        packet.style.opacity = '0'; inProgress = false;
+                        crashBtn.classList.add('btn-disabled');
+                    }
+                }, 3000);
+            };
+
+            window.simulateCrash = function() {
+                if(!inProgress) return;
+                playSound('error');
+                crashed = true;
+                clearTimeout(window.transactionTimer);
+                
+                const rect = packet.getBoundingClientRect();
+                const parentRect = packet.parentElement.getBoundingClientRect();
+                const percent = ((rect.left - parentRect.left) / packet.parentElement.offsetWidth) * 100;
+                
+                packet.style.transition = 'none'; packet.style.left = percent + '%';
+                status.innerText = "⚠ CONNECTION LOST"; status.className = "mt-8 font-mono text-xs md:text-sm text-red-500 h-6 font-bold animate-pulse";
+                packet.classList.add('bg-red-600', 'text-white');
+
+                setTimeout(() => {
+                    if(mode === 'standard') {
+                        status.innerText = "FAILURE: Money Lost.";
+                        packet.style.opacity = '0'; inProgress = false;
+                    } else {
+                        status.innerText = "ATOMIC: Rolling back..."; status.className = "mt-8 font-mono text-xs md:text-sm text-yellow-500 h-6";
+                        packet.style.transition = 'left 1s ease-out'; packet.style.left = '0%';
+                        setTimeout(() => {
+                            walletA += 500; updateUI();
+                            status.innerText = "SAFE: Refunded."; status.className = "mt-8 font-mono text-xs md:text-sm text-green-500 h-6";
+                            bgA.style.borderColor = "#22c55e"; packet.style.opacity = '0'; inProgress = false;
+                        }, 1000);
+                    }
+                    crashBtn.classList.add('btn-disabled');
+                }, 1000);
+            };
+
+            window.setDataAlgo = function(type) {
+                mode = type;
+                reset();
+                playSound('click');
+                const btnStd = document.getElementById('btn-data-std');
+                const btnKyakz = document.getElementById('btn-data-kyakz');
+                const active = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
+                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
+                if(type === 'standard') { 
+                    btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all"; 
+                    btnKyakz.className = inactive; 
+                } else { 
+                    btnStd.className = inactive; 
+                    btnKyakz.className = active; 
+                }
+            };
+        })();
+
+        // --- 6. SYSTEM BOOT ---
+        const memDisplay = document.getElementById('status-mem');
+        setInterval(() => { memDisplay.innerText = `MEM: ${Math.floor(Math.random() * 5 + 12)}MB`; }, 2000);
+
         function bootModule(moduleId) {
-            // Hide all modules
+            playSound('click');
+            // Reset active states
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-zinc-800', 'border-red-500', 'text-white');
+                btn.classList.add('border-transparent', 'text-zinc-400');
+            });
+
+            // Set Active
+            const navId = 'nav-' + moduleId;
+            const btn = document.getElementById(navId);
+            if(btn) {
+                btn.classList.add('bg-zinc-800', 'border-red-500', 'text-white');
+                btn.classList.remove('border-transparent', 'text-zinc-400');
+            }
+
+            // Toggle Sections
             ['terminal', 'network', 'physics', 'data'].forEach(id => {
                 document.getElementById(id).classList.add('hidden');
             });
-            
-            // Show selected module
             document.getElementById(moduleId).classList.remove('hidden');
-
-            // [FIX] Force resize if opening the Network tab so Canvas isn't blurry
-            if (moduleId === 'network') {
-                window.dispatchEvent(new Event('resize'));
-            }
 
             console.log(`[SYSTEM] Booting module: ${moduleId}`);
         }
