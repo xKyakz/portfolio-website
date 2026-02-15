@@ -1,7 +1,6 @@
 (function() {
-    // 1. Inject the Module UI
     const container = document.getElementById('ai');
-    if (!container) return; // Safety check
+    if (!container) return;
 
     container.innerHTML = `
         <div class="mb-4">
@@ -34,24 +33,22 @@
         </div>
     `;
 
-    // 2. The Logic
     const canvas = document.getElementById('aiCanvas');
     const computeDisplay = document.getElementById('ai-compute');
     
-    let cols = 20, rows = 12; // Grid size
-    let size = 40; // Cell size (px)
+    let cols = 20, rows = 12;
+    let size = 40;
     let grid = []; 
-    let target = {x: 18, y: 6}; // Destination
+    let target = {x: 18, y: 6};
     let agents = [];
 
-    // Initialize Agents
     for(let i=0; i<500; i++) {
         agents.push({
             x: Math.random() * 800, 
             y: Math.random() * 600, 
             vx: 0, 
             vy: 0,
-            speed: Math.random() * 0.5 + 2 // Slight speed variance
+            speed: Math.random() * 0.5 + 2
         });
     }
 
@@ -63,7 +60,7 @@
                 grid[x][y] = { 
                     wall: false, 
                     vec: {x:0, y:0}, 
-                    dist: 999 // Infinite distance initially
+                    dist: 999
                 };
             }
         }
@@ -73,7 +70,6 @@
     function calcFlow() {
         const start = performance.now();
         
-        // Step A: Reset Distances
         for(let x=0; x<cols; x++) {
             for(let y=0; y<rows; y++) {
                 if(grid[x][y].wall) grid[x][y].dist = 999;
@@ -81,17 +77,14 @@
             }
         }
         
-        // Step B: Breadth-First Search (Flood Fill) from Target
         let q = [];
         grid[target.x][target.y].dist = 0;
         q.push(target);
 
         while(q.length > 0) {
             let curr = q.shift();
-            // Check 4 neighbors
             [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dx, dy]) => {
                 let nx = curr.x+dx, ny = curr.y+dy;
-                // Bounds check + Wall check + Unvisited check
                 if(nx>=0 && nx<cols && ny>=0 && ny<rows && !grid[nx][ny].wall && grid[nx][ny].dist===999) {
                     grid[nx][ny].dist = grid[curr.x][curr.y].dist + 1;
                     q.push({x:nx, y:ny});
@@ -99,7 +92,6 @@
             });
         }
 
-        // Step C: Generate Vectors (Point to neighbor with lowest distance)
         for(let x=0; x<cols; x++) {
             for(let y=0; y<rows; y++) {
                 if(grid[x][y].wall || grid[x][y].dist===999) {
@@ -116,7 +108,6 @@
                     }
                 });
                 
-                // Normalize vector
                 grid[x][y].vec = {x: best.dx, y: best.dy};
             }
         }
@@ -125,9 +116,7 @@
         computeDisplay.innerText = (end - start).toFixed(2) + "ms";
     }
 
-    // Initial Setup
     resetGrid();
-    // Add some random walls for interest
     for(let i=0; i<15; i++) {
         let wx = Math.floor(Math.random() * cols);
         let wy = Math.floor(Math.random() * rows);
@@ -137,32 +126,27 @@
     }
     calcFlow();
 
-    // 3. The Animation Loop
     function loop() {
-        // If tab is hidden, skip render to save battery
         if(container.classList.contains('hidden')) return requestAnimationFrame(loop);
         if(typeof setupCanvas === 'undefined') return requestAnimationFrame(loop);
 
         const { ctx, width, height } = setupCanvas(canvas);
         
-        // Recalculate cell size based on screen width
         const cellW = width / cols;
         const cellH = height / rows;
 
-        // Draw Grid
         for(let x=0; x<cols; x++) {
             for(let y=0; y<rows; y++) {
                 let cx = x * cellW;
                 let cy = y * cellH;
                 
                 if(grid[x][y].wall) {
-                    ctx.fillStyle = '#3f3f46'; // Wall color
+                    ctx.fillStyle = '#3f3f46';
                     ctx.fillRect(cx+1, cy+1, cellW-2, cellH-2);
                 } else if (x === target.x && y === target.y) {
-                    ctx.fillStyle = '#22c55e'; // Target color (Green)
+                    ctx.fillStyle = '#22c55e';
                     ctx.fillRect(cx+1, cy+1, cellW-2, cellH-2);
                 } else {
-                    // Draw tiny vector arrow
                     ctx.strokeStyle = '#27272a';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
@@ -175,34 +159,28 @@
             }
         }
 
-        // Draw & Update Agents
         ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent') || '#ef4444';
         
         agents.forEach(a => {
-            // 1. Determine which cell we are in
             let gx = Math.floor(a.x / cellW);
             let gy = Math.floor(a.y / cellH);
             
-            // 2. Read the vector from that cell (The "Flow")
             if(gx>=0 && gx<cols && gy>=0 && gy<rows) {
                 let force = grid[gx][gy].vec;
-                a.vx += force.x * 0.5; // Acceleration
+                a.vx += force.x * 0.5;
                 a.vy += force.y * 0.5;
             }
             
-            // 3. Physics (Friction + Movement)
             a.vx *= 0.9; 
             a.vy *= 0.9;
             a.x += a.vx * a.speed; 
             a.y += a.vy * a.speed;
             
-            // 4. Wrap around screen (for infinite flow effect)
             if(a.x < 0) a.x = width;
             if(a.x > width) a.x = 0;
             if(a.y < 0) a.y = height;
             if(a.y > height) a.y = 0;
 
-            // 5. Draw Dot
             ctx.beginPath(); 
             ctx.arc(a.x, a.y, 3, 0, Math.PI*2); 
             ctx.fill();
@@ -212,21 +190,17 @@
     }
     loop();
 
-    // 4. Interaction (Place Walls)
     canvas.addEventListener('mousedown', e => {
         const rect = canvas.getBoundingClientRect();
-        // Calculate which cell was clicked
-        // (Using standard 20x12 grid assumption logic relative to canvas size)
         const cellW = rect.width / cols;
         const cellH = rect.height / rows;
         
         const x = Math.floor((e.clientX - rect.left) / cellW);
         const y = Math.floor((e.clientY - rect.top) / cellH);
         
-        // Don't overwrite target
         if(x !== target.x || y !== target.y) {
-            grid[x][y].wall = !grid[x][y].wall; // Toggle wall
-            calcFlow(); // Re-calculate the ENTIRE map instantly
+            grid[x][y].wall = !grid[x][y].wall;
+            calcFlow();
         }
     });
 })();
