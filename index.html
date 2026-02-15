@@ -4,221 +4,153 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KYAKZ // SYSTEMS ARCHITECT</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
     <style>
-        :root {
-            --bg-color: #09090b;
-            --panel-color: #18181b;
-            --text-main: #d4d4d8;
-            --text-dim: #71717a;
-            --accent: #ef4444; /* Default Red */
-            --accent-dim: rgba(239, 68, 68, 0.1);
-            --border: #27272a;
-        }
-
-        body { font-family: 'JetBrains Mono', monospace; background-color: var(--bg-color); color: var(--text-main); transition: background-color 0.5s, color 0.5s; }
-        
-        /* CRT Scanline */
-        .scanline {
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.05));
-            background-size: 100% 4px;
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; pointer-events: none;
-        }
-
-        ::-webkit-scrollbar { width: 8px; background: var(--bg-color); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-        .btn-disabled { opacity: 0.5; cursor: not-allowed; }
-        .code-inactive { opacity: 0.2; filter: grayscale(100%); transition: all 0.3s; }
-        .code-active { opacity: 1; border-color: var(--accent); box-shadow: 0 0 20px var(--accent-dim); transition: all 0.3s; }
-        .cmd-input { background: transparent; border: none; outline: none; color: white; width: 100%; font-family: inherit; }
-        
-        .nav-btn { width: 100%; text-align: left; padding: 0.5rem 0.75rem; font-size: 0.875rem; border-left-width: 2px; transition: all 0.2s; border-color: transparent; color: var(--text-dim); }
-        .nav-btn:hover { color: white; background-color: rgba(39, 39, 42, 0.5); }
-        .nav-btn-active { background-color: var(--panel-color); border-left-color: var(--accent); color: white; }
+        :root { --c: #ef4444; --g: rgba(239, 68, 68, 0.1); }
+        body { font-family: 'JetBrains Mono', monospace; }
+        .scan { background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1)); background-size: 100% 4px; position: fixed; inset: 0; z-index: 50; pointer-events: none; }
+        ::-webkit-scrollbar { width: 8px; background: #18181b; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        .dis { opacity: 0.5; cursor: not-allowed; }
+        .off { opacity: 0.2; filter: grayscale(100%); transition: all 0.3s; }
+        .on { opacity: 1; border-color: var(--c); box-shadow: 0 0 20px var(--g); transition: all 0.3s; }
+        .cmd { background: transparent; border: none; outline: none; color: white; width: 100%; font-family: inherit; }
+        .txt-c { color: var(--c); } .bg-c { background-color: var(--c); } .bor-c { border-color: var(--c); }
+        @keyframes shk { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+        .shake { animation: shk 0.5s infinite; } .err { background-color: #450a0a !important; }
     </style>
 </head>
-<body class="overflow-hidden h-screen flex flex-col selection:bg-red-900 selection:text-white">
+<body class="bg-zinc-950 text-zinc-300 overflow-hidden h-screen flex flex-col selection:bg-red-900 selection:text-white">
 
-    <div class="scanline"></div>
+    <div class="scan"></div>
 
     <header class="h-12 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/50 z-10 relative">
         <div class="flex items-center space-x-4">
-            <span class="text-[var(--accent)] font-bold tracking-widest">KYAKZ.OS</span>
-            <span class="text-xs text-zinc-500">// KERNEL v5.0.0</span>
+            <span class="txt-c font-bold tracking-widest">KYAKZ.OS</span>
+            <span class="text-xs text-zinc-500">// KERNEL v4.3.1</span>
         </div>
         <div class="hidden md:flex items-center space-x-6 text-xs text-zinc-500 font-bold">
-            <div id="bio-os">OS: DETECTING...</div>
-            <div id="bio-batt">PWR: AC</div>
-            <div class="text-[var(--accent)] animate-pulse">LIVE</div>
+            <div id="bio-dev">CLIENT: ...</div>
+            <div id="bio-bat">BATTERY: --%</div>
+            <div id="stat-mem">MEM: 14MB</div>
+            <div class="txt-c animate-pulse">LIVE</div>
         </div>
     </header>
 
     <main class="flex-1 flex overflow-hidden">
-        
         <aside class="hidden md:flex w-64 border-r border-zinc-800 flex-col bg-zinc-900/20 overflow-y-auto">
-            <div class="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Core Modules</div>
+            <div class="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Modules</div>
             <nav class="flex-1 space-y-1 px-2">
-                <button onclick="bootModule('terminal')" id="nav-terminal" class="nav-btn"> > ./terminal.lua </button>
-                <button onclick="bootModule('network')" id="nav-network" class="nav-btn"> > ./replication.lua </button>
-                <button onclick="bootModule('physics')" id="nav-physics" class="nav-btn"> > ./spatial_hash.lua </button>
-                <button onclick="bootModule('data')" id="nav-data" class="nav-btn"> > ./atomic_data.lua </button>
-                
-                <div class="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider mt-4">Advanced Systems</div>
-                <button onclick="bootModule('ai')" id="nav-ai" class="nav-btn"> > ./flow_field.lua </button>
-                <button onclick="bootModule('security')" id="nav-security" class="nav-btn"> > ./heuristics.lua </button>
-                <button onclick="bootModule('procedural')" id="nav-procedural" class="nav-btn"> > ./chunk_load.lua </button>
+                <button onclick="boot('term')" id="n-term" class="n-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 transition-all bg-zinc-800 bor-c text-white">> ./terminal.lua</button>
+                <button onclick="boot('net')" id="n-net" class="n-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">> ./replication.lua</button>
+                <button onclick="boot('phy')" id="n-phy" class="n-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">> ./spatial_hash.lua</button>
+                <button onclick="boot('ai')" id="n-ai" class="n-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">> ./flow_field.lua</button>
+                <button onclick="boot('sec')" id="n-sec" class="n-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">> ./heuristics.lua</button>
+                <button onclick="boot('proc')" id="n-proc" class="n-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">> ./chunk_marshal.lua</button>
+                <button onclick="boot('dat')" id="n-dat" class="n-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">> ./atomic_data.lua</button>
             </nav>
             <div class="p-4 border-t border-zinc-800">
                 <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-[var(--accent)] rounded flex items-center justify-center text-white font-bold">K</div>
+                    <div class="w-8 h-8 bg-c rounded flex items-center justify-center text-white font-bold">K</div>
                     <div><div class="text-sm font-bold text-white">User: Kyakz</div><div class="text-xs text-zinc-500">Perms: ADMIN</div></div>
                 </div>
             </div>
         </aside>
 
-        <section id="viewport" class="flex-1 bg-black/50 p-6 md:p-10 relative overflow-y-auto w-full">
+        <section id="view" class="flex-1 bg-black/50 p-6 md:p-10 relative overflow-y-auto w-full">
             
-            <div id="terminal" class="h-full flex flex-col max-w-4xl mx-auto">
-                <div class="mb-8">
-                    <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Lead Systems Architect</h1>
-                    <p class="text-lg md:text-xl text-zinc-400">Specialized in Luau Optimization & Engine Scalability.</p>
-                </div>
-                <div class="bg-zinc-900 border border-zinc-700 rounded-lg p-6 font-mono text-sm shadow-2xl flex-1 flex flex-col" onclick="document.getElementById('cmd-input').focus()">
-                    <div id="console-output" class="space-y-1 text-zinc-300 flex-1 overflow-y-auto custom-scroll mb-2">
-                        <div class="text-green-500">[SYSTEM] Booting Kyakz.OS Kernel...</div>
-                        <div class="text-zinc-500">[INFO] Loading modules... DONE</div>
-                        <div class="text-blue-400">[AUTH] User verified: 6 Years CS Experience</div>
-                        <div class="text-zinc-400">Type 'help' for commands. Try 'theme matrix' or 'theme cyberpunk'.</div>
+            <div id="term" class="max-w-3xl mx-auto h-full flex flex-col">
+                <div class="mb-8"><h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Lead Systems Architect</h1><p class="text-lg md:text-xl text-zinc-400">Specialized in Luau Optimization & Engine Scalability.</p></div>
+                <div class="bg-zinc-900 border border-zinc-700 rounded-lg p-6 font-mono text-sm shadow-2xl flex-1 flex flex-col" onclick="document.getElementById('in').focus()">
+                    <div class="flex items-center space-x-2 mb-4 border-b border-zinc-700 pb-2"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div><span class="ml-2 text-zinc-500">debug_console</span></div>
+                    <div id="out" class="space-y-1 text-zinc-300 flex-1 overflow-y-auto custom-scroll mb-2">
+                        <div class="text-green-500">[SYS] Booting Kyakz.OS...</div>
+                        <div class="text-blue-400">[AUTH] User: 6 Years CS Exp</div>
+                        <div class="text-zinc-400">Type 'help' for commands.</div>
                     </div>
-                    <div class="flex items-center text-zinc-300">
-                        <span class="text-[var(--accent)] mr-2">root@kyakz:~$</span>
-                        <input type="text" id="cmd-input" class="cmd-input" autocomplete="off" spellcheck="false">
-                    </div>
+                    <div class="flex items-center text-zinc-300"><span class="txt-c mr-2">root@kyakz:~$</span><input type="text" id="in" class="cmd" autocomplete="off" spellcheck="false"></div>
                 </div>
             </div>
 
-            <div id="network" class="hidden h-full flex flex-col max-w-6xl mx-auto">
+            <div id="net" class="hidden h-full flex flex-col max-w-6xl mx-auto">
                 <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-                    <div>
-                        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Replication <span class="text-[var(--accent)]">//</span> Lag Compensation</h2>
-                        <p class="text-zinc-400 text-sm">Server-side hit registration algorithm for high-latency clients.</p>
-                    </div>
+                    <div><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Replication <span class="txt-c">//</span> Lag Comp</h2><p class="text-zinc-400 text-sm">Server-side hit registration algorithm.</p></div>
                     <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
-                        <button id="btn-algo-std" onclick="setAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">STANDARD</button>
-                        <button id="btn-algo-kyakz" onclick="setAlgo('kyakz')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">KYAKZ REWIND</button>
+                        <button id="b-net-std" onclick="setNet('std')" class="px-4 py-1 text-xs font-bold rounded bg-c text-white transition-all">STANDARD</button>
+                        <button id="b-net-k" onclick="setNet('k')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">KYAKZ REWIND</button>
                     </div>
                 </div>
                 <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-crosshair min-h-[300px]">
-                    <canvas id="netCanvas" class="w-full h-full"></canvas>
+                    <canvas id="c-net" class="w-full h-full"></canvas>
                     <div class="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur p-3 rounded border border-zinc-800 flex items-center space-x-4">
-                        <span class="text-xs font-bold text-red-500 whitespace-nowrap">PING:</span>
-                        <input type="range" min="0" max="1000" value="0" class="w-full accent-red-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer" id="pingSlider">
-                        <span class="text-xs font-mono text-white w-16 text-right"><span id="pingValue">0</span>ms</span>
+                        <span class="text-xs font-bold txt-c whitespace-nowrap">PING:</span>
+                        <input type="range" min="0" max="1000" value="0" class="w-full accent-red-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer" id="rng-ping">
+                        <span class="text-xs font-mono text-white w-16 text-right"><span id="val-ping">0</span>ms</span>
                     </div>
                 </div>
             </div>
 
-            <div id="physics" class="hidden h-full flex flex-col max-w-6xl mx-auto">
+            <div id="phy" class="hidden h-full flex flex-col max-w-6xl mx-auto">
                 <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-                    <div>
-                        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Spatial Physics <span class="text-[var(--accent)]">//</span> Broadphase</h2>
-                        <p class="text-zinc-400 text-sm">O(1) collision detection system for high-entity environments.</p>
-                    </div>
+                    <div><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Physics <span class="txt-c">//</span> Broadphase</h2><p class="text-zinc-400 text-sm">O(1) collision detection.</p></div>
                     <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
-                        <button id="btn-phy-std" onclick="setPhyAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">O(N²)</button>
-                        <button id="btn-phy-kyakz" onclick="setPhyAlgo('spatial')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">SPATIAL O(1)</button>
+                        <button id="b-phy-std" onclick="setPhy('std')" class="px-4 py-1 text-xs font-bold rounded bg-c text-white transition-all">O(N²)</button>
+                        <button id="b-phy-k" onclick="setPhy('k')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">SPATIAL O(1)</button>
                     </div>
                 </div>
                 <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden min-h-[300px]">
-                    <canvas id="phyCanvas" class="w-full h-full"></canvas>
+                    <canvas id="c-phy" class="w-full h-full"></canvas>
                     <div class="absolute top-4 left-4 pointer-events-none space-y-1">
                         <div class="text-xs font-mono text-zinc-500">ENTITIES: <span class="text-white">250</span></div>
-                        <div class="text-xs font-mono text-zinc-500">CHECKS: <span id="phy-checks" class="text-red-500 font-bold">0</span></div>
+                        <div class="text-xs font-mono text-zinc-500">CHECKS: <span id="phy-chk" class="txt-c font-bold">0</span></div>
                         <div class="text-xs font-mono text-zinc-500">OPT: <span id="phy-opt" class="text-white">0%</span></div>
                     </div>
                 </div>
             </div>
 
-            <div id="data" class="hidden h-full flex flex-col max-w-6xl mx-auto">
+            <div id="ai" class="hidden h-full flex flex-col max-w-6xl mx-auto">
+                <div class="mb-6"><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">AI Layer <span class="txt-c">//</span> Flow Fields</h2><p class="text-zinc-400 text-sm">Mass unit navigation. 1000+ Agents @ 0.5ms.</p></div>
+                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden min-h-[300px] cursor-crosshair">
+                    <canvas id="c-ai" class="w-full h-full"></canvas>
+                    <div class="absolute top-4 left-4 pointer-events-none text-xs font-mono text-zinc-500"><div>AGENTS: <span class="text-white">500</span></div><div>COMPUTE: <span class="text-green-500">0.42ms</span></div></div>
+                    <div class="absolute bottom-4 left-0 right-0 text-center text-xs text-zinc-500 pointer-events-none">[CLICK TO PLACE WALLS]</div>
+                </div>
+            </div>
+
+            <div id="sec" class="hidden h-full flex flex-col max-w-6xl mx-auto">
+                <div class="mb-6 flex justify-between items-end">
+                    <div><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Security <span class="txt-c">//</span> Heuristics</h2><p class="text-zinc-400 text-sm">Vector Probability Analysis.</p></div>
+                    <div class="flex gap-2"><button onclick="simSec('lag')" class="px-4 py-1 text-xs font-bold rounded bg-zinc-800 text-white hover:bg-zinc-700">SIM LAG</button><button onclick="simSec('fly')" class="px-4 py-1 text-xs font-bold rounded bg-red-900 text-red-100 hover:bg-red-800">SIM FLY</button></div>
+                </div>
+                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden min-h-[300px] flex flex-col p-4">
+                    <canvas id="c-sec" class="w-full flex-1 rounded bg-black/20"></canvas>
+                    <div class="h-12 flex items-center justify-between mt-4 px-2 border-t border-zinc-800 pt-2"><div class="text-xs font-mono text-zinc-400">STATUS: <span id="sec-stat" class="text-green-500 font-bold">SECURE</span></div><div class="text-xs font-mono text-zinc-600">VELOCITY_VARIANCE_CHECK_V2</div></div>
+                </div>
+            </div>
+
+            <div id="proc" class="hidden h-full flex flex-col max-w-6xl mx-auto">
+                <div class="mb-6"><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Procedural <span class="txt-c">//</span> Chunking</h2><p class="text-zinc-400 text-sm">Custom Chunk Marshalling.</p></div>
+                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden min-h-[300px] cursor-move" id="proc-cont">
+                    <canvas id="c-proc" class="w-full h-full"></canvas>
+                    <div class="absolute top-4 right-4 bg-black/60 p-2 rounded text-xs font-mono text-zinc-400 border border-zinc-800 backdrop-blur"><div>MEM: <span class="text-white">FLAT (128MB)</span></div><div>CHUNKS: <span class="txt-c">DYNAMIC</span></div></div>
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-500" id="proc-hint"><span class="bg-black/80 text-white text-xs px-2 py-1 rounded">DRAG TO EXPLORE</span></div>
+                </div>
+            </div>
+
+            <div id="dat" class="hidden h-full flex flex-col max-w-6xl mx-auto">
                 <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-                    <div>
-                        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Atomic Data <span class="text-[var(--accent)]">//</span> Session Locking</h2>
-                        <p class="text-zinc-400 text-sm">ACID-compliant transaction system.</p>
-                    </div>
-                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
-                        <button id="btn-data-std" onclick="setDataAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">UNSAFE</button>
-                        <button id="btn-data-kyakz" onclick="setDataAlgo('atomic')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">ATOMIC</button>
-                    </div>
+                    <div><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Data <span class="txt-c">//</span> ACID</h2><p class="text-zinc-400 text-sm">Session Locking & Integrity.</p></div>
+                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1"><button id="b-dat-std" onclick="setDat('std')" class="px-4 py-1 text-xs font-bold rounded bg-c text-white transition-all">UNSAFE</button><button id="b-dat-k" onclick="setDat('k')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">ATOMIC</button></div>
                 </div>
                 <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden flex flex-col items-center justify-center min-h-[400px]">
                     <div class="flex items-center justify-between w-full max-w-2xl px-4 md:px-10 relative z-10">
-                        <div class="text-center">
-                            <div class="w-16 h-16 md:w-24 md:h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-2xl md:text-3xl mb-2 relative transition-all duration-300" id="wallet-a-bg">💰</div>
-                            <div class="font-mono text-lg md:text-xl font-bold text-white">$<span id="wallet-a-val">1000</span></div>
-                        </div>
-                        <div class="flex-1 h-1 bg-zinc-700 mx-4 md:mx-8 relative">
-                            <div id="data-packet" class="w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black opacity-0">$</div>
-                        </div>
-                        <div class="text-center">
-                            <div class="w-16 h-16 md:w-24 md:h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-2xl md:text-3xl mb-2">🏦</div>
-                            <div class="font-mono text-lg md:text-xl font-bold text-white">$<span id="wallet-b-val">0</span></div>
-                        </div>
+                        <div class="text-center"><div class="w-16 h-16 md:w-24 md:h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-2xl md:text-3xl mb-2 relative">💰</div><div class="font-mono text-lg md:text-xl font-bold text-white">$<span id="wal-a">1000</span></div></div>
+                        <div class="flex-1 h-1 bg-zinc-700 mx-4 md:mx-8 relative"><div id="d-pkt" class="w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black opacity-0">$</div></div>
+                        <div class="text-center"><div class="w-16 h-16 md:w-24 md:h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-2xl md:text-3xl mb-2">🏦</div><div class="font-mono text-lg md:text-xl font-bold text-white">$<span id="wal-b">0</span></div></div>
                     </div>
-                    <div class="mt-12 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                        <button onclick="startTransaction()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded shadow-lg transition-all text-xs md:text-sm">INITIATE TRANSFER</button>
-                        <button onclick="simulateCrash()" id="btn-crash" class="btn-disabled bg-red-900/50 text-red-200 border border-red-800 font-bold py-2 px-6 rounded shadow-lg transition-all text-xs md:text-sm">⚠ SIMULATE CRASH</button>
-                    </div>
-                    <div id="data-status" class="mt-8 font-mono text-xs md:text-sm text-zinc-500 h-6">Waiting...</div>
-                </div>
-            </div>
-
-            <div id="ai" class="hidden h-full flex flex-col max-w-6xl mx-auto">
-                <div class="mb-4">
-                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">AI Navigation <span class="text-[var(--accent)]">//</span> Flow Fields</h2>
-                    <p class="text-zinc-400 text-sm">Pathfinding for 1,000+ units. Click to place walls.</p>
-                </div>
-                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-crosshair">
-                    <canvas id="aiCanvas" class="w-full h-full"></canvas>
-                    <div class="absolute top-4 left-4 pointer-events-none text-xs font-mono text-zinc-500">
-                        AGENTS: <span class="text-white">500</span> | COMPUTE: <span class="text-green-500">0.4ms</span>
-                    </div>
-                </div>
-            </div>
-
-            <div id="security" class="hidden h-full flex flex-col max-w-6xl mx-auto">
-                <div class="mb-4 flex justify-between items-end">
-                    <div>
-                        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Security <span class="text-[var(--accent)]">//</span> Heuristics</h2>
-                        <p class="text-zinc-400 text-sm">Probability-based exploit detection.</p>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick="injectHack('lag')" class="px-3 py-1 bg-zinc-800 text-white text-xs border border-zinc-600 rounded hover:bg-zinc-700">Simulate Lag</button>
-                        <button onclick="injectHack('fly')" class="px-3 py-1 bg-red-900/50 text-red-200 text-xs border border-red-800 rounded hover:bg-red-900">Inject Fly Hack</button>
-                    </div>
-                </div>
-                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden p-4">
-                    <canvas id="secCanvas" class="w-full h-full"></canvas>
-                    <div class="absolute top-4 right-4 text-right">
-                        <div id="sec-status" class="text-xl font-bold text-green-500">STATUS: CLEAN</div>
-                        <div class="text-xs text-zinc-500">VARIANCE ANALYSIS ACTIVE</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="procedural" class="hidden h-full flex flex-col max-w-6xl mx-auto">
-                <div class="mb-4">
-                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Procedural <span class="text-[var(--accent)]">//</span> Chunk Loading</h2>
-                    <p class="text-zinc-400 text-sm">Infinite terrain streaming. Drag to move.</p>
-                </div>
-                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-move">
-                    <canvas id="procCanvas" class="w-full h-full"></canvas>
-                    <div class="absolute bottom-4 left-4 text-xs font-mono text-zinc-500 bg-black/50 p-2 rounded">
-                        COORDS: <span id="proc-coords" class="text-white">0, 0</span> | CHUNKS: 9 Loaded
-                    </div>
+                    <div class="mt-12 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4"><button onclick="startTx()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded shadow-lg transition-all text-xs md:text-sm">INITIATE</button><button onclick="crashTx()" id="b-crash" class="dis bg-red-900/50 text-red-200 border border-red-800 font-bold py-2 px-6 rounded shadow-lg transition-all text-xs md:text-sm">⚠ CRASH</button></div>
+                    <div id="d-stat" class="mt-8 font-mono text-xs md:text-sm text-zinc-500 h-6">Waiting...</div>
                 </div>
             </div>
 
@@ -226,610 +158,299 @@
     </main>
 
     <script>
-        // --- CORE: SETUP & BIOMETRICS ---
-        function setupCanvas(canvas) {
-            if(!canvas) return null;
-            const ctx = canvas.getContext('2d');
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
-            ctx.scale(dpr, dpr);
-            return { ctx, width: rect.width, height: rect.height };
-        }
-
-        // Biometrics
-        (async function() {
-            const osDisplay = document.getElementById('bio-os');
-            const battDisplay = document.getElementById('bio-batt');
-            const platform = navigator.platform.toLowerCase();
-            if(platform.includes('win')) osDisplay.innerText = "OS: WIN32";
-            else if(platform.includes('mac')) osDisplay.innerText = "OS: DARWIN";
-            else if(platform.includes('linux')) osDisplay.innerText = "OS: LINUX";
-            else osDisplay.innerText = "OS: UNKNOWN";
-
-            if(navigator.getBattery) {
-                try {
-                    const battery = await navigator.getBattery();
-                    const updateBatt = () => { battDisplay.innerText = `PWR: ${Math.round(battery.level * 100)}%${battery.charging ? ' [CHG]' : ''}`; };
-                    updateBatt();
-                    battery.addEventListener('levelchange', updateBatt);
-                    battery.addEventListener('chargingchange', updateBatt);
-                } catch(e) { battDisplay.innerText = "PWR: UNK"; }
-            }
-        })();
-
-        // Theme Manager
-        const themes = {
-            kyakz: { bg: '#09090b', accent: '#ef4444' },
-            matrix: { bg: '#020602', accent: '#22c55e' },
-            cyberpunk: { bg: '#0f0214', accent: '#d946ef' },
-            biolab: { bg: '#030f0f', accent: '#06b6d4' },
-            gold: { bg: '#0f0b02', accent: '#eab308' }
+        const root = document.documentElement, d = document;
+        let cfs = (c) => { 
+            if(!c) return null; 
+            const x = c.getContext('2d'), r = c.parentElement.getBoundingClientRect(), dpr = window.devicePixelRatio || 1; 
+            c.width = r.width * dpr; c.height = r.height * dpr; x.scale(dpr, dpr); 
+            return {x, w: r.width, h: r.height}; 
         };
 
-        function setTheme(name) {
-            const t = themes[name] || themes.kyakz;
-            const root = document.documentElement.style;
-            root.setProperty('--bg-color', t.bg);
-            root.setProperty('--accent', t.accent);
-            root.setProperty('--accent-dim', t.accent + '20');
-        }
-
-        // --- MODULE: TERMINAL ---
-        (function() {
-            const input = document.getElementById('cmd-input');
-            const output = document.getElementById('console-output');
-            
-            input.addEventListener('keydown', function(e) {
-                if(e.key === 'Enter') {
-                    const cmd = this.value.trim().toLowerCase();
-                    this.value = '';
-                    log(`root@kyakz:~$ ${cmd}`, 'text-zinc-500');
-                    processCommand(cmd);
+        // --- TERM ---
+        (function(){
+            navigator.getBattery?.().then(b => { 
+                const u = () => d.getElementById('bio-bat').innerText = `BATTERY: ${Math.round(b.level*100)}%`; 
+                u(); b.addEventListener('levelchange', u); 
+            });
+            d.getElementById('bio-dev').innerText = `DEVICE: ${(navigator.platform||"WIN32").toUpperCase().split(' ')[0]}`;
+            const i = d.getElementById('in'), o = d.getElementById('out');
+            i.addEventListener('keydown', e => {
+                if(e.key === 'Enter'){
+                    let v = i.value.trim(); i.value = '';
+                    log(`root@kyakz:~$ ${v}`, 'text-zinc-400');
+                    const a = v.toLowerCase().split(' ');
+                    if(v === 'help') log('cmds: theme [name], about, sudo rm -rf /', 'text-yellow-400');
+                    else if(a[0] === 'theme') {
+                        const t = {matrix:'#22c55e', cyberpunk:'#db2777', biolab:'#14b8a6', kyakz:'#ef4444'}[a[1]];
+                        if(t) { root.style.setProperty('--c', t); root.style.setProperty('--g', t+'33'); log(`Theme: ${a[1]}`, 'txt-c'); }
+                        else log('Themes: matrix, cyberpunk, biolab, kyakz', 'text-zinc-500');
+                    }
+                    else if(v === 'sudo rm -rf /') {
+                        log('DELETING KERNEL...', 'text-red-600 font-bold');
+                        d.body.classList.add('shake', 'err');
+                        setTimeout(() => { d.body.classList.remove('shake', 'err'); log('ACCESS DENIED.', 'bg-red-600 text-white inline'); }, 2000);
+                    }
+                    else if(v === 'about') log('Kyakz.OS v4.3.1', 'text-blue-400');
+                    else if(v) log(`ERR: ${v}`, 'text-red-500');
                 }
             });
-
-            function log(text, color = 'text-zinc-300') {
-                const div = document.createElement('div');
-                div.className = color; div.textContent = text;
-                output.appendChild(div); output.scrollTop = output.scrollHeight;
-            }
-
-            function processCommand(cmd) {
-                const args = cmd.split(' ');
-                if(args[0] === 'help') {
-                    log('Commands: about, clear, theme [name], sudo [cmd]');
-                    log('Themes: kyakz, matrix, cyberpunk, biolab, gold');
-                }
-                else if(args[0] === 'theme') {
-                    if(themes[args[1]]) { setTheme(args[1]); log(`Theme set to ${args[1]}`, 'text-[var(--accent)]'); }
-                    else log('Unknown theme. Try: matrix, cyberpunk', 'text-red-500');
-                }
-                else if(cmd === 'sudo rm -rf /') {
-                    document.body.style.transform = "translate(5px, 5px)";
-                    setTimeout(() => document.body.style.transform = "translate(-5px, -5px)", 50);
-                    setTimeout(() => document.body.style.transform = "none", 100);
-                    log('ACCESS DENIED. INCIDENT REPORTED.', 'text-red-600 font-bold');
-                }
-                else if(cmd === 'clear') output.innerHTML = '';
-                else log(`Command not found: ${args[0]}`, 'text-red-500');
-            }
+            function log(t, c='text-zinc-300') { const e = d.createElement('div'); e.className = c; e.innerText = t; o.appendChild(e); o.scrollTop = o.scrollHeight; }
         })();
 
-        // --- MODULE: NETWORK ---
-        (function() {
-            const canvas = document.getElementById('netCanvas');
-            const slider = document.getElementById('pingSlider');
-            const pingDisplay = document.getElementById('pingValue');
-            let algorithm = 'standard';
-            let tick = 0;
-            const positionBuffer = [];
-            const target = { x: 0, y: 0, radius: 20 };
-            const particles = [];
+        // --- NET ---
+        let netM = 'std';
+        (function(){
+            const c = d.getElementById('c-net'), rng = d.getElementById('rng-ping'), val = d.getElementById('val-ping');
+            let t=0, buf=[], trg={x:0,y:0}, pts=[];
+            function l(){
+                const s = cfs(c); if(!s) return requestAnimationFrame(l);
+                const {x,w,h} = s; t++;
+                trg.x = w/2 + Math.sin(t*0.02)*(w*0.35); trg.y = h/2 + Math.cos(t*0.03)*(h*0.2);
+                buf.push({...trg}); if(buf.length>600) buf.shift();
+                const pg = parseInt(rng.value); val.innerText = pg;
+                
+                x.fillStyle='#18181b'; x.fillRect(0,0,w,h);
+                x.strokeStyle='#27272a'; x.beginPath();
+                for(let i=0;i<w;i+=40){x.moveTo(i,0);x.lineTo(i,h);} for(let i=0;i<h;i+=40){x.moveTo(0,i);x.lineTo(w,i);} x.stroke();
 
-            function loop() {
-                const { ctx, width, height } = setupCanvas(canvas);
-                tick++;
-                target.x = width / 2 + Math.sin(tick * 0.02) * (width * 0.35);
-                target.y = height / 2 + Math.cos(tick * 0.03) * (height * 0.2);
-                positionBuffer.push({ x: target.x, y: target.y });
-                if (positionBuffer.length > 600) positionBuffer.shift();
+                const gi = Math.max(0, Math.floor(buf.length - 1 - (pg/16)));
+                const gp = buf[gi] || trg;
+                if(netM==='std') { x.fillStyle='#3f3f46'; x.beginPath(); x.arc(trg.x,trg.y,20,0,6.28); x.fill(); }
+                x.fillStyle= getComputedStyle(root).getPropertyValue('--c'); x.shadowBlur=15; x.shadowColor=x.fillStyle;
+                x.beginPath(); x.arc(gp.x,gp.y,20,0,6.28); x.fill(); x.shadowBlur=0;
 
-                const ping = parseInt(slider.value);
-                pingDisplay.innerText = ping;
-
-                ctx.fillStyle = '#18181b'; ctx.fillRect(0, 0, width, height);
-                ctx.strokeStyle = '#27272a'; ctx.beginPath();
-                for(let i=0; i<width; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i,height); }
-                for(let i=0; i<height; i+=40) { ctx.moveTo(0,i); ctx.lineTo(width,i); }
-                ctx.stroke();
-
-                const ghostIndex = Math.floor(positionBuffer.length - 1 - (ping / 16));
-                const ghostPos = positionBuffer[Math.max(0, ghostIndex)] || target;
-
-                if (algorithm === 'standard') {
-                    ctx.fillStyle = '#3f3f46'; ctx.beginPath();
-                    ctx.arc(target.x, target.y, target.radius, 0, Math.PI * 2); ctx.fill();
-                }
-
-                ctx.shadowBlur = 15; ctx.shadowColor = '#ef4444';
-                ctx.fillStyle = '#ef4444'; ctx.beginPath();
-                ctx.arc(ghostPos.x, ghostPos.y, target.radius, 0, Math.PI * 2); ctx.fill();
-                ctx.shadowBlur = 0;
-
-                particles.forEach((p, i) => {
-                    p.life--;
-                    ctx.fillStyle = p.color; ctx.globalAlpha = p.life / 30;
-                    ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
-                    if (p.life <= 0) particles.splice(i, 1);
-                });
-                ctx.globalAlpha = 1;
-                requestAnimationFrame(loop);
+                pts.forEach((p,i) => {
+                    p.l--; x.fillStyle=p.c; x.globalAlpha=p.l/30; x.beginPath(); x.arc(p.x,p.y,p.r,0,6.28); x.fill();
+                    if(p.l<=0) pts.splice(i,1);
+                }); x.globalAlpha=1;
+                requestAnimationFrame(l);
             }
-            loop();
-
-            canvas.addEventListener('mousedown', (e) => {
-                const rect = canvas.getBoundingClientRect();
-                const mouseX = e.clientX - rect.left;
-                const mouseY = e.clientY - rect.top;
-                const ping = parseInt(slider.value);
-                let hit = false;
-
-                if (algorithm === 'standard') {
-                    const dist = Math.hypot(mouseX - target.x, mouseY - target.y);
-                    if (dist < target.radius) hit = true;
-                } else {
-                    const ghostIndex = Math.floor(positionBuffer.length - 1 - (ping / 16));
-                    const pastPos = positionBuffer[Math.max(0, ghostIndex)] || target;
-                    const dist = Math.hypot(mouseX - pastPos.x, mouseY - pastPos.y);
-                    if (dist < target.radius) hit = true;
-                }
-
-                particles.push({
-                    x: mouseX, y: mouseY, 
-                    color: hit ? '#22c55e' : '#71717a',
-                    radius: hit ? 10 : 4, life: 30
-                });
+            l();
+            c.addEventListener('mousedown', e => {
+                const r = c.getBoundingClientRect(), mx = e.clientX-r.left, my = e.clientY-r.top;
+                const pg = parseInt(rng.value), gi = Math.max(0, Math.floor(buf.length - 1 - (pg/16))), gp = buf[gi] || trg;
+                let h = false;
+                if(netM==='std') h = Math.hypot(mx-trg.x, my-trg.y) < 20;
+                else h = Math.hypot(mx-gp.x, my-gp.y) < 20;
+                pts.push({x:mx, y:my, c:h?'#22c55e':'#71717a', r:h?10:4, l:30});
             });
-
-            window.setAlgo = function(type) {
-                algorithm = type;
-                const btnStd = document.getElementById('btn-algo-std');
-                const btnKyakz = document.getElementById('btn-algo-kyakz');
-                const active = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all";
-                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-                if(type === 'standard') { btnStd.className = active; btnKyakz.className = inactive; }
-                else { btnStd.className = inactive; btnKyakz.className = active; }
+            window.setNet = (m) => {
+                netM = m;
+                d.getElementById('b-net-std').className = m==='std' ? 'px-4 py-1 text-xs font-bold rounded bg-c text-white transition-all' : 'px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all';
+                d.getElementById('b-net-k').className = m==='k' ? 'px-4 py-1 text-xs font-bold rounded bg-c text-white transition-all' : 'px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all';
             };
         })();
 
-        // --- MODULE: PHYSICS ---
-        (function() {
-            const canvas = document.getElementById('phyCanvas');
-            const statsChecks = document.getElementById('phy-checks');
-            const statsOpt = document.getElementById('phy-opt');
-            let mode = 'standard';
-            let particles = [];
-            
-            function initParticles(w, h) {
-                particles = Array.from({length: 250}, () => ({
-                    x: Math.random() * w, y: Math.random() * h,
-                    vx: (Math.random() - 0.5) * 2, vy: (Math.random() - 0.5) * 2
-                }));
-            }
-
-            function loop() {
-                const { ctx, width, height } = setupCanvas(canvas);
-                if(particles.length === 0) initParticles(width, height);
-
-                particles.forEach(p => {
-                    p.x += p.vx; p.y += p.vy;
-                    if(p.x < 0) { p.x = 0; p.vx *= -1; }
-                    if(p.x > width) { p.x = width; p.vx *= -1; }
-                    if(p.y < 0) { p.y = 0; p.vy *= -1; }
-                    if(p.y > height) { p.y = height; p.vy *= -1; }
+        // --- PHY ---
+        let phyM = 'std';
+        (function(){
+            const c = d.getElementById('c-phy'), sc = d.getElementById('phy-chk'), so = d.getElementById('phy-opt');
+            let pts = [];
+            function l(){
+                const s = cfs(c); if(!s) return requestAnimationFrame(l);
+                const {x,w,h} = s; 
+                if(!pts.length) pts = Array.from({length:250}, ()=>({x:Math.random()*w, y:Math.random()*h, vx:(Math.random()-.5)*2, vy:(Math.random()-.5)*2}));
+                pts.forEach(p=>{
+                    p.x+=p.vx; p.y+=p.vy;
+                    if(p.x<0||p.x>w) p.vx*=-1; if(p.y<0||p.y>h) p.vy*=-1;
                 });
-
-                ctx.fillStyle = '#18181b'; ctx.fillRect(0,0,width,height);
-                let checks = 0;
-
-                if (mode === 'standard') {
-                    ctx.fillStyle = '#71717a';
-                    particles.forEach(p => { ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill(); });
-                    ctx.strokeStyle = 'rgba(239, 68, 68, 0.05)';
-                    ctx.beginPath();
-                    for(let i=0; i<particles.length; i++) {
-                        for(let j=i+1; j<particles.length; j++) {
-                            checks++;
-                            if(Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y) < 40) {
-                                ctx.moveTo(particles[i].x, particles[i].y);
-                                ctx.lineTo(particles[j].x, particles[j].y);
-                            }
-                        }
-                    }
-                    ctx.stroke();
+                x.fillStyle='#18181b'; x.fillRect(0,0,w,h);
+                let k=0;
+                if(phyM==='std'){
+                    x.fillStyle='#71717a'; pts.forEach(p=>{x.beginPath();x.arc(p.x,p.y,3,0,6.28);x.fill()});
+                    x.strokeStyle='rgba(239,68,68,0.05)'; x.beginPath();
+                    for(let i=0;i<pts.length;i++) for(let j=i+1;j<pts.length;j++){
+                        k++; if(Math.hypot(pts[i].x-pts[j].x, pts[i].y-pts[j].y)<40) { x.moveTo(pts[i].x,pts[i].y); x.lineTo(pts[j].x,pts[j].y); }
+                    } x.stroke();
                 } else {
-                    const CELL = 80;
-                    ctx.strokeStyle = '#27272a'; ctx.beginPath();
-                    for(let x=0; x<width; x+=CELL) { ctx.moveTo(x,0); ctx.lineTo(x,height); }
-                    for(let y=0; y<height; y+=CELL) { ctx.moveTo(0,y); ctx.lineTo(width,y); }
-                    ctx.stroke();
-
-                    const grid = {};
-                    particles.forEach(p => {
-                        const key = `${Math.floor(p.x/CELL)},${Math.floor(p.y/CELL)}`;
-                        if(!grid[key]) grid[key] = [];
-                        grid[key].push(p);
-                    });
-
-                    ctx.fillStyle = '#22c55e'; ctx.strokeStyle = 'rgba(34, 197, 94, 0.5)';
-                    particles.forEach(p => {
-                        ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
-                        const cx = Math.floor(p.x/CELL), cy = Math.floor(p.y/CELL);
-                        for(let x=-1; x<=1; x++) {
-                            for(let y=-1; y<=1; y++) {
-                                const cell = grid[`${cx+x},${cy+y}`];
-                                if(cell) {
-                                    cell.forEach(n => {
-                                        if(n===p) return;
-                                        checks++;
-                                        if(Math.hypot(p.x-n.x, p.y-n.y) < 40) {
-                                            ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(n.x, n.y); ctx.stroke();
-                                        }
-                                    });
-                                }
-                            }
+                    const cl=80; x.strokeStyle='#27272a'; x.beginPath();
+                    for(let i=0;i<w;i+=cl){x.moveTo(i,0);x.lineTo(i,h);} for(let i=0;i<h;i+=cl){x.moveTo(0,i);x.lineTo(w,i);} x.stroke();
+                    let g={}; pts.forEach(p=>{ const ky=`${Math.floor(p.x/cl)},${Math.floor(p.y/cl)}`; if(!g[ky])g[ky]=[]; g[ky].push(p); });
+                    x.fillStyle='#22c55e'; x.strokeStyle='rgba(34,197,94,0.5)';
+                    pts.forEach(p=>{
+                        x.beginPath();x.arc(p.x,p.y,3,0,6.28);x.fill();
+                        const cx=Math.floor(p.x/cl), cy=Math.floor(p.y/cl);
+                        for(let i=-1;i<=1;i++) for(let j=-1;j<=1;j++){
+                            const cel=g[`${cx+i},${cy+j}`];
+                            if(cel) cel.forEach(n=>{ if(n!==p){ k++; if(Math.hypot(p.x-n.x,p.y-n.y)<40){ x.beginPath();x.moveTo(p.x,p.y);x.lineTo(n.x,n.y);x.stroke(); } } });
                         }
                     });
                 }
-
-                statsChecks.innerText = checks.toLocaleString();
-                const worst = (250 * 249) / 2;
-                if(mode === 'spatial') {
-                    statsOpt.innerText = `${Math.round(((worst - checks)/worst)*100)}% FASTER`;
-                    statsOpt.className = "text-green-500 font-bold";
-                    statsChecks.className = "text-green-500 font-bold";
-                } else {
-                    statsOpt.innerText = "0% (BASELINE)";
-                    statsOpt.className = "text-red-500 font-bold";
-                    statsChecks.className = "text-red-500 font-bold";
-                }
-                requestAnimationFrame(loop);
+                sc.innerText = k.toLocaleString();
+                const wst = (250*249)/2;
+                if(phyM==='k') { so.innerText = `${Math.round(((wst-k)/wst)*100)}% FASTER`; so.className="text-green-500 font-bold"; sc.className="text-green-500 font-bold"; }
+                else { so.innerText = "0% (BASELINE)"; so.className="text-red-500 font-bold"; sc.className="text-red-500 font-bold"; }
+                requestAnimationFrame(l);
             }
-            loop();
-
-            window.setPhyAlgo = function(type) {
-                mode = type;
-                const btnStd = document.getElementById('btn-phy-std');
-                const btnKyakz = document.getElementById('btn-phy-kyakz');
-                const active = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
-                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-                if(type === 'standard') { 
-                    btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all"; 
-                    btnKyakz.className = inactive; 
-                } else { 
-                    btnStd.className = inactive; 
-                    btnKyakz.className = active; 
-                }
+            l();
+            window.setPhy = (m) => {
+                phyM = m;
+                d.getElementById('b-phy-std').className = m==='std' ? 'px-4 py-1 text-xs font-bold rounded bg-c text-white transition-all' : 'px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all';
+                d.getElementById('b-phy-k').className = m==='k' ? 'px-4 py-1 text-xs font-bold rounded bg-c text-white transition-all' : 'px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all';
             };
         })();
 
-        // --- MODULE: DATA ---
-        (function() {
-            let mode = 'standard';
-            let walletA = 1000;
-            let walletB = 0;
-            let inProgress = false;
-            let crashed = false;
-
-            const elA = document.getElementById('wallet-a-val');
-            const elB = document.getElementById('wallet-b-val');
-            const packet = document.getElementById('data-packet');
-            const status = document.getElementById('data-status');
-            const crashBtn = document.getElementById('btn-crash');
-
-            function animateValue(obj, start, end, duration) {
-                let startTimestamp = null;
-                const step = (timestamp) => {
-                    if (!startTimestamp) startTimestamp = timestamp;
-                    const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                    obj.innerHTML = Math.floor(progress * (end - start) + start);
-                    if (progress < 1) { window.requestAnimationFrame(step); }
-                };
-                window.requestAnimationFrame(step);
+        // --- AI ---
+        (function(){
+            const c = d.getElementById('c-ai');
+            const sz = 20;
+            let cols, rows, fld = [], trg = {c:0, r:0}, wls = new Set(), pts = [];
+            function init(w, h){
+                cols = Math.ceil(w/sz); rows = Math.ceil(h/sz); trg = {c: Math.floor(cols/2), r: Math.floor(rows/2)};
+                pts = Array.from({length: 500}, () => ({x:Math.random()*w, y:Math.random()*h, vx:0, vy:0, s:2+Math.random()}));
+                gen();
             }
-
-            function updateUI(prevA, prevB) {
-                animateValue(elA, prevA, walletA, 500);
-                animateValue(elB, prevB, walletB, 500);
-            }
-
-            function resetPacket() {
-                 packet.style.transition = 'none';
-                 packet.style.left = '0%';
-                 packet.style.opacity = '0';
-                 packet.className = "w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black";
-                 void packet.offsetWidth;
-            }
-
-            function reset() {
-                walletA = 1000; walletB = 0; 
-                elA.innerText = 1000; elB.innerText = 0;
-                resetPacket();
-                inProgress = false; crashed = false;
-                status.innerText = "Ready."; status.className = "mt-8 font-mono text-xs md:text-sm text-zinc-500 h-6";
-                crashBtn.classList.add('btn-disabled');
-            }
-
-            window.startTransaction = function() {
-                if(inProgress) return;
-                if(walletA < 500) {
-                    const oldA = walletA; walletA = 1000; animateValue(elA, oldA, 1000, 500); return;
-                }
-
-                inProgress = true; crashed = false;
-                resetPacket();
-                crashBtn.classList.remove('btn-disabled');
-
-                const prevA = walletA;
-                walletA -= 500;
-                animateValue(elA, prevA, walletA, 500);
-
-                status.innerText = "Sending..."; status.className = "mt-8 font-mono text-xs md:text-sm text-blue-400 h-6";
-                packet.style.opacity = '1';
-                packet.style.transition = 'left 3s linear';
-                packet.style.left = '100%';
-
-                window.transactionTimer = setTimeout(() => {
-                    if(!crashed) {
-                        const prevB = walletB;
-                        walletB += 500;
-                        animateValue(elB, prevB, walletB, 500);
-                        status.innerText = "SUCCESS."; status.className = "mt-8 font-mono text-xs md:text-sm text-green-500 h-6";
-                        packet.style.opacity = '0'; inProgress = false;
-                        crashBtn.classList.add('btn-disabled');
-                    }
-                }, 3000);
-            };
-
-            window.simulateCrash = function() {
-                if(!inProgress) return;
-                crashed = true;
-                clearTimeout(window.transactionTimer);
-                
-                const rect = packet.getBoundingClientRect();
-                const parentRect = packet.parentElement.getBoundingClientRect();
-                const percent = ((rect.left - parentRect.left) / packet.parentElement.offsetWidth) * 100;
-                
-                packet.style.transition = 'none'; packet.style.left = percent + '%';
-                status.innerText = "⚠ CONNECTION LOST"; status.className = "mt-8 font-mono text-xs md:text-sm text-red-500 h-6 font-bold animate-pulse";
-                packet.classList.add('bg-red-600', 'text-white');
-
-                setTimeout(() => {
-                    if(mode === 'standard') {
-                        status.innerText = "FAILURE: Money Lost.";
-                        packet.style.opacity = '0'; inProgress = false;
-                    } else {
-                        status.innerText = "ATOMIC: Rolling back..."; status.className = "mt-8 font-mono text-xs md:text-sm text-yellow-500 h-6";
-                        packet.style.transition = 'left 1s ease-out'; packet.style.left = '0%';
-                        setTimeout(() => {
-                            const prevA = walletA;
-                            walletA += 500; 
-                            animateValue(elA, prevA, walletA, 500);
-                            status.innerText = "SAFE: Refunded."; status.className = "mt-8 font-mono text-xs md:text-sm text-green-500 h-6";
-                            packet.style.opacity = '0'; inProgress = false;
-                        }, 1000);
-                    }
-                    crashBtn.classList.add('btn-disabled');
-                }, 1000);
-            };
-
-            window.setDataAlgo = function(type) {
-                mode = type;
-                reset();
-                const btnStd = document.getElementById('btn-data-std');
-                const btnKyakz = document.getElementById('btn-data-kyakz');
-                const active = "px-4 py-1 text-xs font-bold rounded bg-green-600 text-white transition-all";
-                const inactive = "px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all";
-                if(type === 'standard') { btnStd.className = "px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all"; btnKyakz.className = inactive; }
-                else { btnStd.className = inactive; btnKyakz.className = active; }
-            };
-        })();
-
-        // --- MODULE: AI FLOW FIELDS ---
-        (function() {
-            const canvas = document.getElementById('aiCanvas');
-            let cols = 20, rows = 15, size = 40;
-            let grid = [], target = {x: 10, y: 7};
-            let agents = [];
-
-            for(let i=0; i<500; i++) agents.push({x: Math.random()*800, y: Math.random()*600, vx:0, vy:0});
-
-            function resetGrid() {
-                grid = [];
-                for(let x=0; x<cols; x++) {
-                    grid[x] = [];
-                    for(let y=0; y<rows; y++) grid[x][y] = { wall: false, vec: {x:0, y:0}, dist: 999 };
-                }
-                calcFlow();
-            }
-
-            function calcFlow() {
-                let q = [];
-                for(let x=0; x<cols; x++) for(let y=0; y<rows; y++) grid[x][y].dist = 999;
-                grid[target.x][target.y].dist = 0;
-                q.push(target);
-
-                while(q.length > 0) {
-                    let curr = q.shift();
-                    [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dx, dy]) => {
-                        let nx = curr.x+dx, ny = curr.y+dy;
-                        if(nx>=0 && nx<cols && ny>=0 && ny<rows && !grid[nx][ny].wall && grid[nx][ny].dist===999) {
-                            grid[nx][ny].dist = grid[curr.x][curr.y].dist + 1;
-                            q.push({x:nx, y:ny});
+            function gen(){
+                fld = new Array(cols*rows).fill(null);
+                let q = [], ti = trg.r*cols+trg.c;
+                let cst = new Array(cols*rows).fill(999);
+                cst[ti] = 0; q.push(ti);
+                while(q.length){
+                    let curr = q.shift(), cc = curr%cols, cr = Math.floor(curr/cols);
+                    [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dx, dy])=>{
+                        let nx=cc+dx, ny=cr+dy;
+                        if(nx>=0 && nx<cols && ny>=0 && ny<rows){
+                            let ni = ny*cols+nx;
+                            if(!wls.has(`${nx},${ny}`) && cst[ni]===999){ cst[ni] = cst[curr]+1; q.push(ni); }
                         }
                     });
                 }
-
-                for(let x=0; x<cols; x++) {
-                    for(let y=0; y<rows; y++) {
-                        if(grid[x][y].wall || grid[x][y].dist===999) continue;
-                        let best = {dist:999, dx:0, dy:0};
-                        [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dx, dy]) => {
-                            let nx = x+dx, ny = y+dy;
-                            if(nx>=0 && nx<cols && ny>=0 && ny<rows && grid[nx][ny].dist < best.dist) {
-                                best = {dist: grid[nx][ny].dist, dx, dy};
-                            }
-                        });
-                        grid[x][y].vec = {x: best.dx, y: best.dy};
-                    }
-                }
-            }
-
-            resetGrid();
-
-            function loop() {
-                const { ctx, width, height } = setupCanvas(canvas);
-                size = width / cols;
-                ctx.strokeStyle = '#333'; ctx.lineWidth = 1;
-                for(let x=0; x<cols; x++) {
-                    for(let y=0; y<rows; y++) {
-                        let cx = x*size, cy = y*size;
-                        if(grid[x][y].wall) { ctx.fillStyle = '#333'; ctx.fillRect(cx, cy, size, size); }
-                        else if(x===target.x && y===target.y) { ctx.fillStyle = '#22c55e'; ctx.fillRect(cx, cy, size, size); }
-                        else {
-                            ctx.strokeStyle = '#444'; ctx.beginPath();
-                            let mx = cx+size/2, my = cy+size/2;
-                            ctx.moveTo(mx, my); ctx.lineTo(mx+grid[x][y].vec.x*10, my+grid[x][y].vec.y*10);
-                            ctx.stroke();
+                for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+                    let i = r*cols+c;
+                    if(cst[i]===999 || wls.has(`${c},${r}`)) continue;
+                    let min = cst[i], v={x:0,y:0};
+                    [[0,1],[0,-1],[1,0],[-1,0]].forEach(([dx, dy])=>{
+                        let nx=c+dx, ny=r+dy;
+                        if(nx>=0 && nx<cols && ny>=0 && ny<rows){
+                            let ni = ny*cols+nx;
+                            if(cst[ni]<min){ min=cst[ni]; v={x:dx, y:dy}; }
                         }
-                    }
+                    });
+                    fld[i] = v;
                 }
-
-                ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
-                agents.forEach(a => {
-                    let gx = Math.floor(a.x/size), gy = Math.floor(a.y/size);
-                    if(gx>=0 && gx<cols && gy>=0 && gy<rows) {
-                        a.vx += grid[gx][gy].vec.x * 0.5;
-                        a.vy += grid[gx][gy].vec.y * 0.5;
-                    }
-                    a.vx *= 0.9; a.vy *= 0.9;
-                    a.x += a.vx; a.y += a.vy;
-                    ctx.beginPath(); ctx.arc(a.x, a.y, 2, 0, Math.PI*2); ctx.fill();
+            }
+            function l(){
+                const s = cfs(c); if(!s) return requestAnimationFrame(l);
+                const {x,w,h} = s; if(!cols) init(w,h);
+                x.fillStyle='#18181b'; x.fillRect(0,0,w,h);
+                x.fillStyle='#3f3f46'; wls.forEach(wl=>{ let [cx,cy]=wl.split(',').map(Number); x.fillRect(cx*sz, cy*sz, sz, sz); });
+                x.fillStyle= getComputedStyle(root).getPropertyValue('--c'); x.beginPath(); x.arc(trg.c*sz+10, trg.r*sz+10, 8, 0, 6.28); x.fill();
+                x.strokeStyle='#27272a'; x.beginPath();
+                fld.forEach((v,i)=>{ if(v && (v.x||v.y)){ let cx=(i%cols)*sz+10, cy=Math.floor(i/cols)*sz+10; x.moveTo(cx,cy); x.lineTo(cx+v.x*5, cy+v.y*5); } }); x.stroke();
+                x.fillStyle='#fff';
+                pts.forEach(p=>{
+                    let pc = Math.floor(p.x/sz), pr = Math.floor(p.y/sz), idx = pr*cols+pc;
+                    if(fld[idx]) { p.vx += fld[idx].x*0.2; p.vy += fld[idx].y*0.2; }
+                    p.vx*=0.9; p.vy*=0.9;
+                    let m = Math.hypot(p.vx, p.vy); if(m>p.s){ p.vx=(p.vx/m)*p.s; p.vy=(p.vy/m)*p.s; }
+                    p.x+=p.vx; p.y+=p.vy;
+                    x.fillRect(p.x, p.y, 2, 2);
                 });
-                requestAnimationFrame(loop);
+                requestAnimationFrame(l);
             }
-            loop();
-
-            canvas.addEventListener('mousedown', e => {
-                const rect = canvas.getBoundingClientRect();
-                const x = Math.floor(((e.clientX - rect.left) / rect.width) * cols);
-                const y = Math.floor(((e.clientY - rect.top) / rect.height) * rows);
-                if(x!==target.x || y!==target.y) {
-                    grid[x][y].wall = !grid[x][y].wall;
-                    calcFlow();
-                }
+            l();
+            c.addEventListener('mousedown', e=>{
+                const r=c.getBoundingClientRect(), cx=Math.floor((e.clientX-r.left)/sz), cy=Math.floor((e.clientY-r.top)/sz), k=`${cx},${cy}`;
+                if(wls.has(k)) wls.delete(k); else wls.add(k);
+                gen();
             });
         })();
 
-        // --- MODULE: SECURITY ---
-        window.injectHack = function(type) { window.secHack = type; setTimeout(() => window.secHack=null, 2000); };
-        (function() {
-            const canvas = document.getElementById('secCanvas');
-            const status = document.getElementById('sec-status');
-            let data = new Array(100).fill(50); 
-            let flags = 0;
-
-            function loop() {
-                const { ctx, width, height } = setupCanvas(canvas);
-                let val = 50 + (Math.random()-0.5)*10;
-                if(window.secHack === 'lag') val = (Math.random() > 0.8) ? 150 : val;
-                if(window.secHack === 'fly') val = 120;
-
-                data.push(val); data.shift();
-                let avg = data.reduce((a,b)=>a+b)/data.length;
-                let variance = data.reduce((a,b)=>a+Math.pow(b-avg,2))/data.length;
-
-                if(avg > 100) { status.innerText = "DETECTED: FLY HACK"; status.className = "text-xl font-bold text-red-500 animate-pulse"; }
-                else if(variance > 500) { status.innerText = "ANALYSIS: LAG SPIKE (IGNORED)"; status.className = "text-xl font-bold text-yellow-500"; }
-                else { status.innerText = "STATUS: CLEAN"; status.className = "text-xl font-bold text-green-500"; }
-
-                ctx.fillStyle = '#18181b'; ctx.fillRect(0,0,width,height);
-                ctx.beginPath(); ctx.strokeStyle = '#22c55e'; ctx.lineWidth = 2;
-                for(let i=0; i<data.length; i++) {
-                    let x = (i/data.length)*width;
-                    let y = height - (data[i]/150)*height;
-                    if(i===0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                }
-                ctx.stroke();
-                requestAnimationFrame(loop);
-            }
-            loop();
-        })();
-
-        // --- MODULE: PROCEDURAL ---
-        (function() {
-            const canvas = document.getElementById('procCanvas');
-            const coordDisplay = document.getElementById('proc-coords');
-            let offsetX = 0, offsetY = 0;
-            let dragging = false, lastX, lastY;
-
-            function noise(x, y) {
-                let n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-                return n - Math.floor(n);
-            }
-
-            function loop() {
-                const { ctx, width, height } = setupCanvas(canvas);
-                const TILE = 40;
-                let startX = Math.floor(offsetX / TILE);
-                let startY = Math.floor(offsetY / TILE);
+        // --- SEC ---
+        window.simSec = (t) => window.secT = t;
+        (function(){
+            const c = d.getElementById('c-sec'), st = d.getElementById('sec-stat');
+            let h = new Array(100).fill(10), f = 0; window.secT=null;
+            function l(){
+                const s = cfs(c); if(!s) return requestAnimationFrame(l);
+                const {x,w,h:ch} = s; f++;
+                let v = 10;
+                if(window.secT==='lag') { if(Math.random()>0.7) v=Math.random()*50; }
+                else if(window.secT==='fly') v=60;
+                h.push(v); h.shift();
                 
-                for(let x=0; x < width/TILE + 1; x++) {
-                    for(let y=0; y < height/TILE + 1; y++) {
-                        let wx = startX + x, wy = startY + y;
-                        let val = noise(wx * 0.1, wy * 0.1);
-                        if(val < 0.3) ctx.fillStyle = '#0ea5e9';
-                        else if(val < 0.4) ctx.fillStyle = '#fde047';
-                        else if(val < 0.8) ctx.fillStyle = '#22c55e';
-                        else ctx.fillStyle = '#71717a';
-                        ctx.fillRect(x*TILE - (offsetX%TILE), y*TILE - (offsetY%TILE), TILE, TILE);
-                    }
-                }
-                coordDisplay.innerText = `${Math.floor(offsetX)}, ${Math.floor(offsetY)}`;
-                requestAnimationFrame(loop);
-            }
-            loop();
+                let avg = h.reduce((a,b)=>a+b,0)/h.length, vr = h.reduce((a,b)=>a+Math.pow(b-avg,2),0)/h.length;
+                if(avg>40 && vr<10) { st.innerText="FLAGGED: FLY HACK"; st.className="txt-c font-bold animate-pulse"; }
+                else { st.innerText="SECURE"; st.className="text-green-500 font-bold"; }
+                if(f%100===0) window.secT=null;
 
-            canvas.addEventListener('mousedown', e => { dragging=true; lastX=e.clientX; lastY=e.clientY; });
-            window.addEventListener('mouseup', () => dragging=false);
-            window.addEventListener('mousemove', e => {
-                if(dragging) {
-                    offsetX -= (e.clientX - lastX);
-                    offsetY -= (e.clientY - lastY);
-                    lastX = e.clientX; lastY = e.clientY;
-                }
-            });
+                x.clearRect(0,0,w,ch); x.strokeStyle= getComputedStyle(root).getPropertyValue('--c'); x.lineWidth=2; x.beginPath();
+                let sp = w/h.length;
+                h.forEach((val,i)=>{ let y=ch-(val*2); if(i===0)x.moveTo(0,y); else x.lineTo(i*sp,y); }); x.stroke();
+                x.strokeStyle='rgba(255,255,255,0.2)'; x.setLineDash([5,5]); x.beginPath(); x.moveTo(0,ch-80); x.lineTo(w,ch-80); x.stroke(); x.setLineDash([]);
+                requestAnimationFrame(l);
+            }
+            l();
         })();
 
-        // --- BOOT LOADER ---
-        function bootModule(moduleId) {
-            document.querySelectorAll('.nav-btn').forEach(btn => btn.className = 'nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 transition-all border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50');
-            const btn = document.getElementById('nav-' + moduleId);
-            if(btn) btn.className = 'nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 transition-all bg-zinc-800 border-[var(--accent)] text-white nav-btn-active';
-            
-            ['terminal', 'network', 'physics', 'data', 'ai', 'security', 'procedural'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) el.classList.add('hidden');
-            });
-            const mod = document.getElementById(moduleId);
-            if(mod) mod.classList.remove('hidden');
-            
-            window.dispatchEvent(new Event('resize'));
-        }
-        
-        bootModule('terminal');
+        // --- PROC ---
+        (function(){
+            const c = d.getElementById('c-proc');
+            let off={x:0,y:0}, drag=false, lp={x:0,y:0};
+            function n(x,y){ return (Math.sin(x*12.98+y*78.23)*43758.5)%1; }
+            function sn(x,y){
+                let i=Math.floor(x), j=Math.floor(y), fx=x-i, fy=y-j, a=n(i,j), b=n(i+1,j), c=n(i,j+1), d=n(i+1,j+1), u=fx*fx*(3-2*fx), v=fy*fy*(3-2*fy);
+                return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;
+            }
+            function l(){
+                const s = cfs(c); if(!s) return requestAnimationFrame(l);
+                const {x,w,h} = s, sz=20;
+                for(let y=0;y<h;y+=sz) for(let px=0;px<w;px+=sz){
+                    let v = sn((px+off.x)*0.01, (y+off.y)*0.01);
+                    let cl = Math.floor(v*50); if(v>0.6) cl=Math.floor(v*100);
+                    x.fillStyle=`rgb(${cl},${cl},${cl})`; x.fillRect(px,y,sz,sz);
+                }
+                requestAnimationFrame(l);
+            }
+            l();
+            const ct = d.getElementById('proc-cont');
+            ct.addEventListener('mousedown', e=>{drag=true; lp={x:e.clientX, y:e.clientY}});
+            window.addEventListener('mouseup', ()=>drag=false);
+            window.addEventListener('mousemove', e=>{ if(drag){ off.x-=(e.clientX-lp.x); off.y-=(e.clientY-lp.y); lp={x:e.clientX, y:e.clientY}; } });
+        })();
 
+        // --- DAT ---
+        let datM='std', wa=1000, wb=0, prog=false, crsh=false;
+        const ea=d.getElementById('wal-a'), eb=d.getElementById('wal-b'), pkt=d.getElementById('d-pkt'), sta=d.getElementById('d-stat'), bc=d.getElementById('b-crash');
+        function anim(o,s,e){ let st=null; function step(t){ if(!st)st=t; let p=Math.min((t-st)/500,1); o.innerText=Math.floor(p*(e-s)+s); if(p<1)requestAnimationFrame(step); } requestAnimationFrame(step); }
+        function rst(){ wa=1000; wb=0; ea.innerText=1000; eb.innerText=0; prog=false; crsh=false; pkt.style.opacity=0; pkt.style.left='0'; sta.innerText="Ready."; sta.className="mt-8 font-mono text-xs md:text-sm text-zinc-500 h-6"; bc.classList.add('dis'); }
+        window.startTx = () => {
+            if(prog) return; if(wa<500) { let oa=wa; wa=1000; anim(ea,oa,1000); return; }
+            prog=true; crsh=false; pkt.style.left='0'; pkt.className="w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black";
+            bc.classList.remove('dis');
+            let pa=wa; wa-=500; anim(ea,pa,wa);
+            sta.innerText="Sending..."; sta.className="mt-8 font-mono text-xs md:text-sm text-blue-400 h-6";
+            pkt.style.opacity='1'; pkt.style.transition='left 3s linear'; pkt.style.left='100%';
+            window.txT = setTimeout(()=>{
+                if(!crsh){ let pb=wb; wb+=500; anim(eb,pb,wb); sta.innerText="SUCCESS."; sta.className="mt-8 font-mono text-xs md:text-sm text-green-500 h-6"; pkt.style.opacity=0; prog=false; bc.classList.add('dis'); }
+            },3000);
+        };
+        window.crashTx = () => {
+            if(!prog) return; crsh=true; clearTimeout(window.txT);
+            let r=pkt.getBoundingClientRect(), pr=pkt.parentElement.getBoundingClientRect(), pc=((r.left-pr.left)/pkt.parentElement.offsetWidth)*100;
+            pkt.style.transition='none'; pkt.style.left=pc+'%'; 
+            sta.innerText="⚠ CONNECTION LOST"; sta.className="mt-8 font-mono text-xs md:text-sm text-red-500 h-6 font-bold animate-pulse";
+            pkt.classList.add('bg-red-600', 'text-white');
+            setTimeout(()=>{
+                if(datM==='std'){ sta.innerText="FAILURE: Money Lost."; pkt.style.opacity=0; prog=false; }
+                else {
+                    sta.innerText="ATOMIC: Rolling back..."; sta.className="mt-8 font-mono text-xs md:text-sm text-yellow-500 h-6";
+                    pkt.style.transition='left 1s ease-out'; pkt.style.left='0%';
+                    setTimeout(()=>{ let pa=wa; wa+=500; anim(ea,pa,wa); sta.innerText="SAFE: Refunded."; sta.className="mt-8 font-mono text-xs md:text-sm text-green-500 h-6"; pkt.style.opacity=0; prog=false; },1000);
+                }
+                bc.classList.add('dis');
+            },1000);
+        };
+        window.setDat = (m) => { datM=m; rst(); d.getElementById('b-dat-std').className=m==='std'?'px-4 py-1 text-xs font-bold rounded bg-c text-white transition-all':'px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all'; d.getElementById('b-dat-k').className=m==='k'?'px-4 py-1 text-xs font-bold rounded bg-c text-white transition-all':'px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all'; };
+
+        // --- SYS ---
+        setInterval(()=>d.getElementById('stat-mem').innerText=`MEM: ${Math.floor(Math.random()*5+12)}MB`, 2000);
+        window.boot = (id) => {
+            d.querySelectorAll('.n-btn').forEach(b=>{ b.classList.remove('bg-zinc-800','bor-c','text-white'); b.classList.add('border-transparent','text-zinc-400'); });
+            d.getElementById('n-'+id).classList.add('bg-zinc-800','bor-c','text-white');
+            d.querySelectorAll('#view > div').forEach(v=>v.classList.add('hidden')); d.getElementById(id).classList.remove('hidden');
+            if(id!=='term') window.dispatchEvent(new Event('resize'));
+        };
     </script>
 </body>
 </html>
