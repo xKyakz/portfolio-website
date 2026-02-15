@@ -1,4 +1,4 @@
-// --- 5. DATA ---
+// data transaction simulation logic
 (function() {
     let mode = 'standard';
     let walletA = 1000;

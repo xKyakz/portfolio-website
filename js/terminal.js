@@ -1,4 +1,4 @@
-// --- 2. TERMINAL LOGIC ---
+// the tuff terminal
 (function() {
     const input = document.getElementById('cmd-input');
     const output = document.getElementById('console-output');

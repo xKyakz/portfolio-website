@@ -11,23 +11,19 @@
     <style>
         body { font-family: 'JetBrains Mono', monospace; }
         
-        /* CRT Scanline */
         .scanline {
             background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
             background-size: 100% 4px;
             position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; pointer-events: none;
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; background: #18181b; }
         ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
 
-        /* Utility */
         .btn-disabled { opacity: 0.5; cursor: not-allowed; }
         .code-inactive { opacity: 0.2; filter: grayscale(100%); transition: all 0.3s; }
         .code-active { opacity: 1; border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); transition: all 0.3s; }
         
-        /* Terminal Input */
         .cmd-input { background: transparent; border: none; outline: none; color: white; width: 100%; font-family: inherit; }
     </style>
 </head>
@@ -64,6 +60,9 @@
                 </button>
                 <button onclick="bootModule('data')" id="nav-data" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
                     > ./atomic_data.lua
+                </button>
+                <button onclick="bootModule('ai')" id="nav-ai" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
+                    >./flow_field.lua
                 </button>
             </nav>
 

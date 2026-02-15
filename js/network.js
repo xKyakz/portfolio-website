@@ -1,4 +1,4 @@
-// --- 3. NETWORK ---
+// network lag simulation
 (function() {
     const canvas = document.getElementById('netCanvas');
     const slider = document.getElementById('pingSlider');
@@ -13,13 +13,11 @@
     const particles = [];
 
     function loop() {
-        // Core function from core.js must be loaded
         if(typeof setupCanvas === 'undefined') return requestAnimationFrame(loop);
 
         const { ctx, width, height } = setupCanvas(canvas);
         tick++;
         
-        // Logic
         target.x = width / 2 + Math.sin(tick * 0.02) * (width * 0.35);
         target.y = height / 2 + Math.cos(tick * 0.03) * (height * 0.2);
         positionBuffer.push({ x: target.x, y: target.y });
@@ -28,7 +26,6 @@
         const ping = parseInt(slider.value);
         pingDisplay.innerText = ping;
 
-        // Draw
         ctx.fillStyle = '#18181b'; ctx.fillRect(0, 0, width, height);
         ctx.strokeStyle = '#27272a'; ctx.beginPath();
         for(let i=0; i<width; i+=40) { ctx.moveTo(i,0); ctx.lineTo(i,height); }

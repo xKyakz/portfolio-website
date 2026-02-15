@@ -1,4 +1,4 @@
-// --- 4. PHYSICS ---
+// physics simulation
 (function() {
     const canvas = document.getElementById('phyCanvas');
     const statsChecks = document.getElementById('phy-checks');
