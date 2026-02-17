@@ -48,7 +48,6 @@
 
     const startBoot = () => {
         overlay.remove();
-        if (window.bgm) window.bgm.play().catch(() => {});
         
         let memCount = 0;
         const memInterval = setInterval(() => {
@@ -96,6 +95,11 @@
 
     const finishBoot = () => {
         bar.classList.add('bg-green-500');
+        
+        if (window.bgm) {
+            window.bgm.play().catch(e => console.error("BGM Play Error:", e));
+        }
+
         setTimeout(() => {
             const flash = document.createElement('div');
             flash.className = "fixed inset-0 bg-white z-[120] pointer-events-none mix-blend-overlay";

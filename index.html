@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        .hidden { display: none !important; }
+
         :root {
             --bg-color: #09090b;
             --text-main: #d4d4d8;
@@ -69,7 +71,7 @@
     </header>
 
     <main class="flex-1 flex overflow-hidden">
-        <aside class="hidden md:flex w-64 border-r border-zinc-800 flex-col bg-zinc-900/20 overflow-y-auto">
+        <aside id="sidebar" class="md:flex !flex w-64 border-r border-zinc-800 flex-col bg-zinc-900/20 overflow-y-auto">
             <div class="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Core Modules</div>
             <nav class="flex-1 space-y-1 px-2" id="nav-container">
                 <button onclick="bootModule('terminal')" id="nav-terminal" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 transition-all bg-zinc-800 border-accent text-white"> > ./terminal.lua </button>
@@ -89,7 +91,7 @@
             </nav>
             
             <div class="p-4 border-t border-zinc-800">
-                <button onclick="bootModule('identity')" id="nav-identity" class="w-full flex items-center space-x-3 p-2 -ml-2 rounded hover:bg-zinc-800/50 transition-all group text-left">
+                <button onclick="bootModule('identity')" id="nav-identity" class="nav-btn w-full flex items-center space-x-3 p-2 -ml-2 rounded hover:bg-zinc-800/50 transition-all group text-left border-l-2 border-transparent">
                     <div class="w-8 h-8 rounded overflow-hidden border border-transparent group-hover:border-accent transition-all shadow-[0_0_10px_rgba(239,68,68,0.3)]">
                         <img src="assets/KyakzBannerSquare.jpg" alt="User" class="w-full h-full object-cover">
                     </div>

@@ -1,14 +1,15 @@
 const memDisplay = document.getElementById('status-mem');
 const logContainer = document.getElementById('activity-log');
-const sfxClick = new Audio('assets/click.mp3'); 
-const sfxHover = new Audio('assets/hover.mp3');
-const bgm = new Audio('assets/bgm.mp3'); 
+
+window.sfxClick = new Audio('assets/click.mp3'); 
+window.sfxHover = new Audio('assets/hover.mp3');
+window.bgm = new Audio('assets/bgm.mp3'); 
 
 let sfxVolume = 0.3;
 let musicVolume = 0.15;
 
-bgm.loop = true;
-bgm.volume = musicVolume;
+window.bgm.loop = true;
+window.bgm.volume = musicVolume;
 
 const themes = {
     kyakz: { bg: '#09090b', accent: '#ef4444' },
@@ -90,10 +91,10 @@ if (memDisplay) {
 }
 
 window.setSfxVolume = (val) => { sfxVolume = val; };
-window.setMusicVolume = (val) => { musicVolume = val; bgm.volume = val; };
+window.setMusicVolume = (val) => { musicVolume = val; window.bgm.volume = val; };
 
-function playSound(type) {
-    const sound = (type === 'click' ? sfxClick : sfxHover).cloneNode();
+window.playSound = (type) => {
+    const sound = (type === 'click' ? window.sfxClick : window.sfxHover).cloneNode();
     sound.volume = type === 'click' ? sfxVolume : (sfxVolume * 0.3);
     sound.play().catch(() => {});
 }
@@ -108,15 +109,12 @@ window.setTheme = (name) => {
 };
 
 function bootModule(moduleId) {
-    playSound('click');
+    window.playSound('click');
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('bg-zinc-800', 'border-accent', 'text-white');
         btn.classList.add('border-transparent', 'text-zinc-400');
     });
 
-    const idBtn = document.getElementById('nav-identity');
-    if (idBtn) idBtn.classList.remove('bg-zinc-800', 'border-accent', 'text-white');
-    
     const activeBtn = document.getElementById('nav-' + moduleId);
     if (activeBtn) {
         activeBtn.classList.add('bg-zinc-800', 'border-accent', 'text-white');
@@ -151,8 +149,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (savedTheme) window.setTheme(savedTheme);
 
     document.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('mouseenter', () => playSound('hover'));
-        btn.addEventListener('click', () => playSound('click'));
+        btn.addEventListener('mouseenter', () => window.playSound('hover'));
+        btn.addEventListener('click', () => window.playSound('click'));
     });
 });
 
@@ -168,8 +166,6 @@ document.addEventListener('keydown', (e) => {
         e.preventDefault();
         bootModule('terminal');
         setTimeout(() => document.getElementById('cmd-input')?.focus(), 50);
-    } else if (e.key === 'Escape') {
-        document.getElementById('cmd-input')?.blur();
     }
 });
 
