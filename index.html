@@ -4,77 +4,100 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KYAKZ // SYSTEMS ARCHITECT</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-
     <style>
-        body { font-family: 'JetBrains Mono', monospace; }
-        
-        /* CRT Scanline */
-        .scanline {
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
-            background-size: 100% 4px;
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; pointer-events: none;
+        :root {
+            --bg-color: #09090b;
+            --text-main: #d4d4d8;
+            --accent: #ef4444; 
+            --accent-dim: rgba(239, 68, 68, 0.1);
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; background: #18181b; }
-        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
 
-        /* Utility */
+        body { font-family: 'JetBrains Mono', monospace; background-color: var(--bg-color); color: var(--text-main); transition: all 0.5s ease; }
+        
+        .scanline { background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.05)); background-size: 100% 4px; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 50; pointer-events: none; opacity: 1; transition: opacity 0.3s; }
+        
+        ::-webkit-scrollbar { width: 8px; background: var(--bg-color); } 
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 4px; }
+        
         .btn-disabled { opacity: 0.5; cursor: not-allowed; }
         .code-inactive { opacity: 0.2; filter: grayscale(100%); transition: all 0.3s; }
-        .code-active { opacity: 1; border-color: #ef4444; box-shadow: 0 0 20px rgba(239, 68, 68, 0.1); transition: all 0.3s; }
+        .code-active { opacity: 1; border-color: var(--accent); box-shadow: 0 0 20px var(--accent-dim); transition: all 0.3s; }
         
-        /* Terminal Input */
         .cmd-input { background: transparent; border: none; outline: none; color: white; width: 100%; font-family: inherit; }
+        
+        .text-accent { color: var(--accent); }
+        .border-accent { border-color: var(--accent); }
+        .bg-accent { background-color: var(--accent); }
     </style>
 </head>
-<body class="bg-zinc-950 text-zinc-300 overflow-hidden h-screen flex flex-col selection:bg-red-900 selection:text-white">
+<body class="overflow-hidden h-screen flex flex-col selection:bg-red-900 selection:text-white">
+
+    <div id="boot-screen" class="fixed inset-0 bg-black z-[100] flex flex-col items-start justify-start p-8 md:p-16 font-mono text-xs md:text-sm text-zinc-500 select-none">
+        <div id="boot-log" class="space-y-1"></div>
+        <div class="mt-auto w-full">
+            <div class="border-t border-zinc-800 pt-2 flex justify-between items-center">
+                <span>KYAKZ.OS // KERNEL v6.6.0</span>
+                <span id="boot-mem" class="text-zinc-300">0KB OK</span>
+            </div>
+            <div class="w-full h-1 bg-zinc-900 mt-2 rounded-full overflow-hidden">
+                <div id="boot-bar" class="h-full bg-accent w-0"></div>
+            </div>
+        </div>
+    </div>
 
     <div class="scanline"></div>
 
     <header class="h-12 border-b border-zinc-800 flex items-center justify-between px-6 bg-zinc-900/50 z-10 relative">
         <div class="flex items-center space-x-4">
-            <span class="text-red-500 font-bold tracking-widest">KYAKZ.OS</span>
-            <span class="text-xs text-zinc-500">// KERNEL v4.3.1</span>
+            <span class="text-accent font-bold tracking-widest">KYAKZ.OS</span>
+            <span class="text-xs text-zinc-500">// KERNEL v6.6.0</span>
         </div>
         <div class="hidden md:flex items-center space-x-6 text-xs text-zinc-500 font-bold">
             <div id="status-mem">MEM: 14MB</div>
             <div id="status-net">NET: CONNECTED</div>
-            <div class="text-red-500 animate-pulse">LIVE</div>
+            <div class="text-accent animate-pulse">LIVE</div>
         </div>
     </header>
 
     <main class="flex-1 flex overflow-hidden">
-        
         <aside class="hidden md:flex w-64 border-r border-zinc-800 flex-col bg-zinc-900/20 overflow-y-auto">
-            <div class="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Modules</div>
-            
+            <div class="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider">Core Modules</div>
             <nav class="flex-1 space-y-1 px-2" id="nav-container">
-                <button onclick="bootModule('terminal')" id="nav-terminal" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 transition-all bg-zinc-800 border-red-500 text-white">
-                    > ./terminal.lua
-                </button>
-                <button onclick="bootModule('network')" id="nav-network" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
-                    > ./replication.lua
-                </button>
-                <button onclick="bootModule('physics')" id="nav-physics" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
-                    > ./spatial_hash.lua
-                </button>
-                <button onclick="bootModule('data')" id="nav-data" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all">
-                    > ./atomic_data.lua
-                </button>
+                <button onclick="bootModule('terminal')" id="nav-terminal" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 transition-all bg-zinc-800 border-accent text-white"> > ./terminal.lua </button>
+                <button onclick="bootModule('services')" id="nav-services" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./contracts.log </button>
+                <button onclick="bootModule('portfolio')" id="nav-portfolio" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./archives.log </button>
+                <button onclick="bootModule('network')" id="nav-network" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./replication.lua </button>
+                <button onclick="bootModule('physics')" id="nav-physics" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./spatial_hash.lua </button>
+                <button onclick="bootModule('data')" id="nav-data" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./atomic_data.lua </button>
+                
+                <div class="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider mt-4">Advanced Systems</div>
+                <button onclick="bootModule('ai')" id="nav-ai" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./flow_field.lua </button>
+                <button onclick="bootModule('security')" id="nav-security" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./heuristics.lua </button>
+                <button onclick="bootModule('procedural')" id="nav-procedural" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./chunk_load.lua </button>
+                
+                <div class="p-4 text-xs font-bold text-zinc-500 uppercase tracking-wider mt-4">System</div>
+                <button onclick="bootModule('settings')" id="nav-settings" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./config.sys </button>
             </nav>
-
+            
             <div class="p-4 border-t border-zinc-800">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-red-600 rounded flex items-center justify-center text-white font-bold">K</div>
+                <button onclick="bootModule('identity')" id="nav-identity" class="w-full flex items-center space-x-3 p-2 -ml-2 rounded hover:bg-zinc-800/50 transition-all group text-left">
+                    <div class="w-8 h-8 rounded overflow-hidden border border-transparent group-hover:border-accent transition-all shadow-[0_0_10px_rgba(239,68,68,0.3)]">
+                        <img src="assets/KyakzBannerSquare.jpg" alt="User" class="w-full h-full object-cover">
+                    </div>
                     <div>
-                        <div class="text-sm font-bold text-white">User: Kyakz</div>
+                        <div class="text-sm font-bold text-white group-hover:text-accent transition-colors">User: Kyakz</div>
                         <div class="text-xs text-zinc-500">Perms: ADMIN</div>
                     </div>
-                </div>
+                </button>
             </div>
         </aside>
 
@@ -85,234 +108,282 @@
                     <h1 class="text-4xl md:text-5xl font-bold text-white mb-2">Lead Systems Architect</h1>
                     <p class="text-lg md:text-xl text-zinc-400">Specialized in Luau Optimization & Engine Scalability.</p>
                 </div>
-
                 <div class="bg-zinc-900 border border-zinc-700 rounded-lg p-6 font-mono text-sm shadow-2xl flex-1 flex flex-col" onclick="document.getElementById('cmd-input').focus()">
-                    <div class="flex items-center space-x-2 mb-4 border-b border-zinc-700 pb-2">
-                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                        <span class="ml-2 text-zinc-500">grimworks_debug_console</span>
-                    </div>
-                    
                     <div id="console-output" class="space-y-1 text-zinc-300 flex-1 overflow-y-auto custom-scroll mb-2">
                         <div class="text-green-500">[SYSTEM] Booting Kyakz.OS Kernel...</div>
-                        <div class="text-zinc-500">[INFO] Loading assets... DONE (0.04s)</div>
+                        <div class="text-zinc-500">[INFO] Loading modules... DONE</div>
                         <div class="text-blue-400">[AUTH] User verified: 6 Years CS Experience</div>
-                        <div class="text-zinc-400">Type 'help' for available commands.</div>
+                        <div class="text-zinc-400">Type 'help' for commands. Try 'theme cyberpunk'.</div>
                     </div>
-                    
                     <div class="flex items-center text-zinc-300">
-                        <span class="text-red-500 mr-2">root@kyakz:~$</span>
+                        <span class="text-accent mr-2">root@kyakz:~$</span>
                         <input type="text" id="cmd-input" class="cmd-input" autocomplete="off" spellcheck="false">
+                    </div>
+                </div>
+            </div>
+
+            <div id="services" class="hidden h-full flex flex-col max-w-6xl mx-auto">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-white mb-1">Contract Protocols <span class="text-accent">//</span> Rates</h2>
+                    <p class="text-zinc-400 text-sm">Resource allocation and development tiers.</p>
+                </div>
+                <div id="services-container"></div>
+            </div>
+
+            <div id="identity" class="hidden h-full flex flex-col max-w-5xl mx-auto justify-center">
+                <div class="mb-8 border-b border-zinc-800 pb-4 flex justify-between items-end">
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-bold text-white mb-1">Identity <span class="text-accent">//</span> Bio-Metrics</h2>
+                        <p class="text-zinc-400 text-sm">Authorized Personnel Record.</p>
+                    </div>
+                    <div class="text-right hidden md:block">
+                        <div class="text-xs font-bold text-zinc-600 uppercase tracking-widest">ID Hash</div>
+                        <div class="font-mono text-accent">0x4B_59_41_4B_5A</div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-6 flex flex-col items-center justify-center relative overflow-hidden group">
+                        <div class="w-32 h-32 md:w-48 md:h-48 rounded-full border-2 border-accent p-1 relative z-10 shadow-[0_0_30px_rgba(239,68,68,0.2)] group">
+                            <img src="assets/KyakzBannerSquare.jpg" alt="Kyakz" class="w-full h-full rounded-full object-cover transition-transform duration-500 group-hover:scale-105">
+    
+                            <div class="absolute inset-0 rounded-full border border-accent animate-ping opacity-20 pointer-events-none"></div>
+                        </div>
+                        <div class="mt-6 text-center">
+                            <div class="text-2xl font-bold text-white">Kyakz</div>
+                            <div class="text-sm text-zinc-500 font-mono">Region: US-EAST</div>
+                        </div>
+                        <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
+                    </div>
+                    <div class="md:col-span-2 space-y-6">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-zinc-900 border border-zinc-800 p-3 rounded"><div class="text-[10px] text-zinc-500 uppercase font-bold">Class</div><div class="text-white font-mono">Architect</div></div>
+                            <div class="bg-zinc-900 border border-zinc-800 p-3 rounded"><div class="text-[10px] text-zinc-500 uppercase font-bold">Level</div><div class="text-accent font-mono text-lg">06</div></div>
+                            <div class="bg-zinc-900 border border-zinc-800 p-3 rounded"><div class="text-[10px] text-zinc-500 uppercase font-bold">Specialty</div><div class="text-white font-mono">Backend</div></div>
+                            <div class="bg-zinc-900 border border-zinc-800 p-3 rounded"><div class="text-[10px] text-zinc-500 uppercase font-bold">Status</div><div class="text-green-500 font-mono animate-pulse">Online</div></div>
+                        </div>
+                            <div id="tech-stack-mount"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="portfolio" class="hidden h-full flex flex-col max-w-6xl mx-auto">
+                <div class="mb-6"><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">The Archives <span class="text-accent">//</span> Records</h2><p class="text-zinc-400 text-sm">Classified project files and code snippets.</p></div>
+                <div class="flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden flex flex-col md:flex-row min-h-[400px]">
+                    <div class="w-full md:w-64 border-b md:border-b-0 md:border-r border-zinc-700 bg-black/20 p-4 overflow-y-auto custom-scroll" id="portfolio-tree"></div>
+                    <div class="flex-1 p-6 md:p-10 flex flex-col relative" id="portfolio-preview"><div class="h-full flex items-center justify-center text-zinc-600 font-mono text-xs uppercase tracking-widest">[SELECT A FILE TO DECRYPT]</div></div>
+                </div>
+            </div>
+
+            <div id="settings" class="hidden h-full flex flex-col max-w-3xl mx-auto justify-center">
+                <div class="mb-8 border-b border-zinc-800 pb-4">
+                    <h2 class="text-3xl font-bold text-white mb-1">System Configuration</h2>
+                    <p class="text-zinc-400 text-sm">Adjust kernel parameters and environment variables.</p>
+                </div>
+                
+                <div class="space-y-8">
+                    <div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-6">
+                        <div class="flex justify-between items-center mb-4"><h3 class="text-sm font-bold text-white uppercase tracking-widest">SFX Volume</h3><span id="sfx-display" class="font-mono text-accent">30%</span></div>
+                        <input type="range" id="setting-sfx" min="0" max="1" step="0.1" value="0.3" class="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-red-500">
+                    </div>
+                    <div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-6">
+                        <div class="flex justify-between items-center mb-4"><h3 class="text-sm font-bold text-white uppercase tracking-widest">Music Volume</h3><span id="music-display" class="font-mono text-accent">15%</span></div>
+                        <input type="range" id="setting-music" min="0" max="1" step="0.1" value="0.15" class="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-red-500">
+                    </div>
+                    <div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-6">
+                        <div class="flex justify-between items-center mb-4"><h3 class="text-sm font-bold text-white uppercase tracking-widest">CRT Intensity</h3><span id="crt-display" class="font-mono text-accent">100%</span></div>
+                        <input type="range" id="setting-crt" min="0" max="1" step="0.1" value="1" class="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-red-500">
+                    </div>
+                    <div class="bg-zinc-900/50 border border-zinc-700 rounded-xl p-6">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-4">Color Scheme</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+                            <button data-theme="kyakz" class="theme-btn px-3 py-2 rounded border border-zinc-700 text-zinc-400 hover:text-white hover:border-white text-xs font-mono transition-all">KYAKZ</button>
+                            <button data-theme="matrix" class="theme-btn px-3 py-2 rounded border border-zinc-700 text-zinc-400 hover:text-green-400 hover:border-green-400 text-xs font-mono transition-all">MATRIX</button>
+                            <button data-theme="cyberpunk" class="theme-btn px-3 py-2 rounded border border-zinc-700 text-zinc-400 hover:text-purple-400 hover:border-purple-400 text-xs font-mono transition-all">CYBER</button>
+                            <button data-theme="gold" class="theme-btn px-3 py-2 rounded border border-zinc-700 text-zinc-400 hover:text-yellow-400 hover:border-yellow-400 text-xs font-mono transition-all">GOLD</button>
+                            <button data-theme="ocean" class="theme-btn px-3 py-2 rounded border border-zinc-700 text-zinc-400 hover:text-blue-400 hover:border-blue-400 text-xs font-mono transition-all">OCEAN</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <div id="network" class="hidden h-full flex flex-col max-w-6xl mx-auto">
                 <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-                    <div>
-                        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Replication <span class="text-red-500">//</span> Lag Compensation</h2>
-                        <p class="text-zinc-400 text-sm">Server-side hit registration algorithm for high-latency clients.</p>
-                    </div>
-                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
-                        <button id="btn-algo-std" onclick="setAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">STANDARD</button>
-                        <button id="btn-algo-kyakz" onclick="setAlgo('kyakz')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">KYAKZ REWIND</button>
-                    </div>
+                    <div><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Replication <span class="text-accent">//</span> Lag Compensation</h2><p class="text-zinc-400 text-sm">Server-side hit registration algorithm.</p></div>
+                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1"><button id="btn-algo-std" onclick="setAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">STANDARD</button><button id="btn-algo-kyakz" onclick="setAlgo('kyakz')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">KYAKZ REWIND</button></div>
                 </div>
-
-                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-crosshair min-h-[300px]" id="canvas-container">
-                    <canvas id="netCanvas" class="w-full h-full"></canvas>
-                    <div class="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur p-3 rounded border border-zinc-800 flex items-center space-x-4">
-                        <span class="text-xs font-bold text-red-500 whitespace-nowrap">PING:</span>
-                        <input type="range" min="0" max="1000" value="0" class="w-full accent-red-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer" id="pingSlider">
-                        <span class="text-xs font-mono text-white w-16 text-right"><span id="pingValue">0</span>ms</span>
-                    </div>
-                </div>
-
+                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-crosshair min-h-[300px]" id="canvas-container"><canvas id="netCanvas" class="w-full h-full"></canvas><div class="absolute bottom-4 left-4 right-4 bg-black/80 backdrop-blur p-3 rounded border border-zinc-800 flex items-center space-x-4"><span class="text-xs font-bold text-red-500 whitespace-nowrap">PING:</span><input type="range" min="0" max="1000" value="0" class="w-full accent-red-500 h-1 bg-zinc-700 rounded-lg appearance-none cursor-pointer" id="pingSlider"><span class="text-xs font-mono text-white w-16 text-right"><span id="pingValue">0</span>ms</span></div></div>
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div id="code-net-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40">
-                        <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Standard</div>
-<pre>
-<span class="text-purple-400">function</span> <span class="text-blue-400">VerifyHit</span>(player: <span class="text-yellow-400">Player</span>, target: <span class="text-yellow-400">BasePart</span>)
-    <span class="text-zinc-500">-- Fails if ping > 100ms due to desync</span>
-    <span class="text-purple-400">local</span> currentPos = target.Position
-    <span class="text-purple-400">if</span> (currentPos - player.Character.Aim.Position).Magnitude < 5 <span class="text-purple-400">then</span>
+                    <div id="code-net-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs text-zinc-500 relative h-40">
+                        <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl">Standard</div>
+<pre class="p-2"><span class="text-purple-400">function</span> <span class="text-blue-400">VerifyHit</span>(player, target)
+    <span class="text-purple-400">local</span> pos = target.Position
+    <span class="text-purple-400">if</span> (pos - player.Aim).Magnitude < 5 <span class="text-purple-400">then</span>
         <span class="text-green-400">return true</span>
     <span class="text-purple-400">end</span>
-    <span class="text-purple-400">return false</span>
-<span class="text-purple-400">end</span>
-</pre>
+<span class="text-purple-400">end</span></pre>
                     </div>
-
-                    <div id="code-net-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
-                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Active</div>
-<pre>
-<span class="text-purple-400">type</span> <span class="text-yellow-400">Snapshot</span> = { t: <span class="text-yellow-400">number</span>, cf: <span class="text-yellow-400">CFrame</span> }
-<span class="text-purple-400">local</span> Buffer: { <span class="text-yellow-400">Snapshot</span> } = {} 
-
-<span class="text-purple-400">function</span> <span class="text-blue-400">RewindEngine:Verify</span>(player, target, ping)
-    <span class="text-purple-400">local</span> serverTime = <span class="text-yellow-400">workspace</span>:GetServerTimeNow()
-    <span class="text-purple-400">local</span> rewindTime = serverTime - (ping/1000)
-    
-    <span class="text-zinc-500">-- O(log n) Binary Search for historic frame</span>
-    <span class="text-purple-400">local</span> oldPos = <span class="text-blue-400">self</span>:GetInterpolatedState(target, rewindTime)
-    
-    <span class="text-purple-400">return</span> (oldPos - player.Aim).Magnitude < 5
-<span class="text-purple-400">end</span>
-</pre>
+                    <div id="code-net-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs text-zinc-300 relative h-40">
+                        <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl">Rewind</div>
+<pre class="p-2"><span class="text-purple-400">function</span> <span class="text-blue-400">Rewind:Verify</span>(player, ping)
+    <span class="text-purple-400">local</span> t = <span class="text-yellow-400">workspace</span>.Time - ping
+    <span class="text-purple-400">local</span> old = <span class="text-blue-400">self</span>:GetHistory(t)
+    <span class="text-purple-400">return</span> (old - player.Aim).Magnitude < 5
+<span class="text-purple-400">end</span></pre>
                     </div>
                 </div>
             </div>
 
             <div id="physics" class="hidden h-full flex flex-col max-w-6xl mx-auto">
                 <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-                    <div>
-                        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Spatial Physics <span class="text-red-500">//</span> Broadphase</h2>
-                        <p class="text-zinc-400 text-sm">O(1) collision detection system for high-entity environments.</p>
-                    </div>
-                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
-                        <button id="btn-phy-std" onclick="setPhyAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">O(N²)</button>
-                        <button id="btn-phy-kyakz" onclick="setPhyAlgo('spatial')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">SPATIAL O(1)</button>
-                    </div>
+                    <div><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Spatial Physics <span class="text-accent">//</span> Broadphase</h2><p class="text-zinc-400 text-sm">O(1) collision detection system.</p></div>
+                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1"><button id="btn-phy-std" onclick="setPhyAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">O(N²)</button><button id="btn-phy-kyakz" onclick="setPhyAlgo('spatial')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">SPATIAL O(1)</button></div>
                 </div>
-
-                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden min-h-[300px]" id="phy-canvas-container">
-                    <canvas id="phyCanvas" class="w-full h-full"></canvas>
-                    <div class="absolute top-4 left-4 pointer-events-none space-y-1">
-                        <div class="text-xs font-mono text-zinc-500">ENTITIES: <span class="text-white">250</span></div>
-                        <div class="text-xs font-mono text-zinc-500">CHECKS: <span id="phy-checks" class="text-red-500 font-bold">0</span></div>
-                        <div class="text-xs font-mono text-zinc-500">OPT: <span id="phy-opt" class="text-white">0%</span></div>
-                    </div>
-                </div>
-
+                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden min-h-[300px]" id="phy-canvas-container"><canvas id="phyCanvas" class="w-full h-full"></canvas><div class="absolute top-4 left-4 pointer-events-none text-xs font-mono text-zinc-500">CHECKS: <span id="phy-checks" class="text-red-500 font-bold">0</span> | OPT: <span id="phy-opt" class="text-white">0%</span></div></div>
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <div id="code-phy-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40">
-                         <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Standard</div>
-<pre>
-<span class="text-purple-400">task.spawn</span>(<span class="text-purple-400">function</span>()
-    <span class="text-purple-400">for</span> i, partA <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(allParts) <span class="text-purple-400">do</span>
-        <span class="text-purple-400">for</span> j, partB <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(allParts) <span class="text-purple-400">do</span>
-            <span class="text-zinc-500">-- CRITICAL: O(N^2) Complexity</span>
-            <span class="text-zinc-500">-- 500 parts = 250,000 checks per frame</span>
-            <span class="text-purple-400">if</span> (partA.Position - partB.Position).Magnitude < 5 <span class="text-purple-400">then</span>
-                <span class="text-blue-400">collide</span>(partA, partB)
-            <span class="text-purple-400">end</span>
+                    <div id="code-phy-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs text-zinc-500 relative h-40">
+                        <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl">Standard</div>
+<pre class="p-2"><span class="text-purple-400">for</span> i, a <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(parts) <span class="text-purple-400">do</span>
+    <span class="text-purple-400">for</span> j, b <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(parts) <span class="text-purple-400">do</span>
+        <span class="text-zinc-500">-- O(N^2) Check</span>
+        <span class="text-purple-400">if</span> (a.Pos - b.Pos).Mag < 5 <span class="text-purple-400">then</span>
+            <span class="text-blue-400">collide</span>(a, b)
         <span class="text-purple-400">end</span>
     <span class="text-purple-400">end</span>
-<span class="text-purple-400">end</span>)
-</pre>
+<span class="text-purple-400">end</span></pre>
                     </div>
-                    <div id="code-phy-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
-                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Active</div>
-<pre>
-<span class="text-purple-400">local</span> GridSize = 20
-<span class="text-purple-400">local</span> SpatialMap = {} <span class="text-zinc-500">-- Hash Map</span>
-
-<span class="text-purple-400">function</span> <span class="text-blue-400">Broadphase:Query</span>(part)
-    <span class="text-purple-400">local</span> key = <span class="text-blue-400">math.floor</span>(part.X/GridSize)..<span class="text-green-400">":"</span>..<span class="text-blue-400">math.floor</span>(part.Z/GridSize)
-    <span class="text-purple-400">local</span> neighbors = SpatialMap[key] <span class="text-purple-400">or</span> {}
-    
-    <span class="text-purple-400">for</span> _, neighbor <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(neighbors) <span class="text-purple-400">do</span>
-         <span class="text-zinc-500">-- Only checks ~5 nearby parts. O(1)</span>
-         <span class="text-blue-400">Narrowphase:Solve</span>(part, neighbor)
+                    <div id="code-phy-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs text-zinc-300 relative h-40">
+                        <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl">Spatial</div>
+<pre class="p-2"><span class="text-purple-400">function</span> <span class="text-blue-400">SpatialHash:Query</span>(part)
+    <span class="text-purple-400">local</span> cell = <span class="text-blue-400">self</span>:GetCell(part.Pos)
+    <span class="text-purple-400">for</span> _, n <span class="text-purple-400">in</span> <span class="text-blue-400">pairs</span>(cell) <span class="text-purple-400">do</span>
+        <span class="text-zinc-500">-- O(1) Check</span>
+        <span class="text-blue-400">collide</span>(part, n)
     <span class="text-purple-400">end</span>
-<span class="text-purple-400">end</span>
-</pre>
+<span class="text-purple-400">end</span></pre>
                     </div>
                 </div>
             </div>
 
             <div id="data" class="hidden h-full flex flex-col max-w-6xl mx-auto">
                 <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-                    <div>
-                        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Atomic Data <span class="text-red-500">//</span> Session Locking</h2>
-                        <p class="text-zinc-400 text-sm">ACID-compliant transaction system.</p>
-                    </div>
-                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1">
-                        <button id="btn-data-std" onclick="setDataAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">UNSAFE</button>
-                        <button id="btn-data-kyakz" onclick="setDataAlgo('atomic')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">ATOMIC</button>
-                    </div>
+                    <div><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Atomic Data <span class="text-accent">//</span> Session Locking</h2><p class="text-zinc-400 text-sm">ACID-compliant transaction system.</p></div>
+                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-1"><button id="btn-data-std" onclick="setDataAlgo('standard')" class="px-4 py-1 text-xs font-bold rounded bg-red-600 text-white transition-all">UNSAFE</button><button id="btn-data-kyakz" onclick="setDataAlgo('atomic')" class="px-4 py-1 text-xs font-bold rounded text-zinc-500 hover:text-white transition-all">ATOMIC</button></div>
                 </div>
-
                 <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden flex flex-col items-center justify-center min-h-[400px]">
-                    
-                    <div class="flex items-center justify-between w-full max-w-2xl px-4 md:px-10 relative z-10">
-                        <div class="text-center">
-                            <div class="w-16 h-16 md:w-24 md:h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-2xl md:text-3xl mb-2 relative transition-all duration-300" id="wallet-a-bg">
-                                💰
-                                <div class="absolute -top-2 -right-2 bg-blue-500 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded text-white">SENDER</div>
-                            </div>
-                            <div class="font-mono text-lg md:text-xl font-bold text-white">$<span id="wallet-a-val">1000</span></div>
-                        </div>
-
-                        <div class="flex-1 h-1 bg-zinc-700 mx-4 md:mx-8 relative">
-                            <div id="data-packet" class="w-6 h-6 md:w-8 md:h-8 bg-yellow-500 rounded-full absolute -top-2.5 md:-top-3.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black opacity-0">
-                                $
-                            </div>
-                        </div>
-
-                        <div class="text-center">
-                            <div class="w-16 h-16 md:w-24 md:h-24 bg-zinc-800 rounded-2xl border-2 border-zinc-600 flex items-center justify-center text-2xl md:text-3xl mb-2" id="wallet-b-bg">
-                                🏦
-                                <div class="absolute -top-2 -right-2 bg-green-500 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded text-white">RECEIVER</div>
-                            </div>
-                            <div class="font-mono text-lg md:text-xl font-bold text-white">$<span id="wallet-b-val">0</span></div>
-                        </div>
+                    <div class="flex items-center justify-between w-full max-w-2xl px-10 relative z-10">
+                        <div class="text-center"><div class="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl relative" id="wallet-a-bg">💰<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded text-white whitespace-nowrap">SENDER</div></div><div class="font-mono text-xl font-bold text-white mt-2">$<span id="wallet-a-val">1000</span></div></div>
+                        <div class="flex-1 h-1 bg-zinc-700 mx-8 relative top-[-15px]"><div id="data-packet" class="w-6 h-6 bg-yellow-500 rounded-full absolute -top-2.5 left-0 shadow-[0_0_15px_rgba(234,179,8,0.5)] flex items-center justify-center text-[10px] md:text-xs font-bold text-black opacity-0">$</div></div>
+                        <div class="text-center"><div class="w-16 h-16 bg-zinc-800 rounded-2xl flex items-center justify-center text-2xl relative" id="wallet-b-bg">🏦<div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-500 text-[10px] md:text-xs font-bold px-2 py-0.5 rounded text-white whitespace-nowrap">RECEIVER</div></div><div class="font-mono text-xl font-bold text-white mt-2">$<span id="wallet-b-val">0</span></div></div>
                     </div>
-
-                    <div class="mt-12 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                        <button onclick="startTransaction()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded shadow-lg transition-all text-xs md:text-sm">
-                            INITIATE TRANSFER
-                        </button>
-                        <button onclick="simulateCrash()" id="btn-crash" class="btn-disabled bg-red-900/50 text-red-200 border border-red-800 font-bold py-2 px-6 rounded shadow-lg transition-all text-xs md:text-sm">
-                            ⚠ SIMULATE CRASH
-                        </button>
-                    </div>
-
+                    <div class="mt-12 flex space-x-4"><button onclick="startTransaction()" id="btn-transfer" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-6 rounded shadow-lg transition-all text-xs md:text-sm">INITIATE TRANSFER</button><button onclick="simulateCrash()" id="btn-crash" class="btn-disabled bg-red-900/50 text-red-200 border border-red-800 font-bold py-2 px-6 rounded shadow-lg transition-all text-xs md:text-sm">⚠ SIMULATE CRASH</button></div>
                     <div id="data-status" class="mt-8 font-mono text-xs md:text-sm text-zinc-500 h-6">Waiting...</div>
                 </div>
-
                 <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                     <div id="code-data-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-500 relative h-40">
-                         <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Standard</div>
-<pre>
-<span class="text-purple-400">function</span> <span class="text-blue-400">TradeSystem:Process</span>(p1, p2, amount)
-    <span class="text-zinc-500">-- DANGEROUS: If server crashes here, funds vanish.</span>
-    p1.Leaderstats.Cash.Value -= amount
-    
-    <span class="text-blue-400">task.wait</span>(2) <span class="text-zinc-500">-- Http/DB Latency</span>
-    
-    p2.Leaderstats.Cash.Value += amount
-<span class="text-purple-400">end</span>
-</pre>
+                    <div id="code-data-std" class="code-active bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs text-zinc-500 relative h-40">
+                        <div class="absolute top-0 right-0 bg-zinc-800 text-zinc-400 text-[9px] px-2 py-0.5 rounded-bl">Standard</div>
+<pre class="p-2"><span class="text-purple-400">function</span> <span class="text-blue-400">Trade:Process</span>(p1, p2, amt)
+    p1.Cash.Value -= amt
+    <span class="text-blue-400">wait</span>(2)
+    p2.Cash.Value += amt
+<span class="text-purple-400">end</span></pre>
                     </div>
-                     <div id="code-data-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
-                         <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Active</div>
-<pre>
-<span class="text-purple-400">function</span> <span class="text-blue-400">Atomic:Transaction</span>(key, callback)
-    <span class="text-yellow-400">DataStore</span>:UpdateAsync(key, <span class="text-purple-400">function</span>(oldData)
-        <span class="text-zinc-500">-- Session Lock Check</span>
-        <span class="text-purple-400">if</span> oldData.JobId ~= <span class="text-blue-400">game</span>.JobId <span class="text-purple-400">then</span> <span class="text-purple-400">return nil</span> <span class="text-purple-400">end</span>
-        
-        <span class="text-zinc-500">-- ACID Compliance: All or Nothing</span>
-        <span class="text-purple-400">local</span> newData = <span class="text-blue-400">deepcopy</span>(oldData)
-        <span class="text-purple-400">local</span> success = <span class="text-blue-400">pcall</span>(callback, newData)
-        
-        <span class="text-purple-400">return</span> success <span class="text-purple-400">and</span> newData <span class="text-purple-400">or</span> <span class="text-purple-400">nil</span>
+                    <div id="code-data-kyakz" class="code-inactive bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs text-zinc-300 relative h-40">
+                        <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl">Atomic</div>
+<pre class="p-2"><span class="text-purple-400">function</span> <span class="text-blue-400">Atomic:Tx</span>(key, fn)
+    <span class="text-yellow-400">DataStore</span>:UpdateAsync(key, <span class="text-purple-400">function</span>(d)
+        <span class="text-zinc-500">-- ACID Compliance</span>
+        <span class="text-purple-400">return</span> fn(d)
     <span class="text-purple-400">end</span>)
-<span class="text-purple-400">end</span>
-</pre>
+<span class="text-purple-400">end</span></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="ai" class="hidden h-full flex flex-col max-w-6xl mx-auto">
+                <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                    <div><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">AI Navigation <span class="text-accent">//</span> Flow Fields</h2><p class="text-zinc-400 text-sm">Pathfinding for 1,000+ units. <strong>Left Click: Wall | Right Click: Target</strong></p></div>
+                    <div class="flex bg-zinc-900 border border-zinc-700 rounded-lg p-2 space-x-4 text-xs font-mono"><div class="text-zinc-500">AGENTS: <span class="text-white font-bold">500</span></div><div class="text-zinc-500">COMPUTE: <span id="ai-compute" class="text-green-500 font-bold">0ms</span></div></div>
+                </div>
+                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-crosshair" id="ai-container" style="min-height: 400px;"><canvas id="aiCanvas" class="w-full h-full"></canvas></div>
+                <div class="mt-6">
+                    <div class="bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
+                        <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Flow Field Algo</div>
+<pre class="p-2"><span class="text-purple-400">function</span> <span class="text-blue-400">FlowField:Update</span>(target)
+    <span class="text-zinc-500">-- 1. Flood Fill Map</span>
+    <span class="text-blue-400">self</span>:CalculateDistances(target)
+    <span class="text-zinc-500">-- 2. Generate Vector Field</span>
+    <span class="text-purple-400">for</span> x, y <span class="text-purple-400">in</span> <span class="text-blue-400">grid</span> <span class="text-purple-400">do</span>
+        <span class="text-blue-400">grid</span>[x][y].Vector = <span class="text-blue-400">self</span>:GetLowest(x, y)
+    <span class="text-purple-400">end</span>
+<span class="text-purple-400">end</span></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="security" class="hidden h-full flex flex-col max-w-6xl mx-auto">
+                <div class="mb-6 flex flex-col md:flex-row justify-between items-end gap-4">
+                    <div><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Security <span class="text-accent">//</span> Heuristics</h2><p class="text-zinc-400 text-sm">Probability-based exploit detection.</p></div>
+                    <div class="flex space-x-2"><button onclick="injectHack('lag')" class="px-3 py-1 bg-zinc-800 text-white text-xs border border-zinc-600 rounded hover:bg-zinc-700">Simulate Lag</button><button onclick="injectHack('fly')" class="px-3 py-1 bg-red-900/50 text-red-200 text-xs border border-red-800 rounded hover:bg-red-900">Inject Fly Hack</button></div>
+                </div>
+                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden p-4 min-h-[300px]"><canvas id="secCanvas" class="w-full h-full"></canvas><div class="absolute top-4 right-4 text-right"><div id="sec-status" class="text-xl font-bold text-green-500">STATUS: CLEAN</div><div class="text-xs text-zinc-500">VARIANCE ANALYSIS ACTIVE</div></div></div>
+                <div class="mt-6">
+                    <div class="bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
+                        <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Heuristics</div>
+<pre class="p-2"><span class="text-purple-400">function</span> <span class="text-blue-400">AntiCheat:Analyze</span>(history)
+    <span class="text-purple-400">local</span> variance = <span class="text-blue-400">Math</span>.Variance(history)
+    <span class="text-purple-400">local</span> avg = <span class="text-blue-400">Math</span>.Average(history)
+    <span class="text-zinc-500">-- High Avg + Low Variance = Artificial Flight</span>
+    <span class="text-purple-400">if</span> avg > 100 <span class="text-purple-400">and</span> variance < 50 <span class="text-purple-400">then</span>
+        <span class="text-blue-400">return</span> <span class="text-red-500">"FLIGHT_DETECTED"</span>
+    <span class="text-purple-400">end</span>
+<span class="text-purple-400">end</span></pre>
+                    </div>
+                </div>
+            </div>
+
+            <div id="procedural" class="hidden h-full flex flex-col max-w-6xl mx-auto">
+                <div class="mb-6"><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Procedural <span class="text-accent">//</span> Chunk Loading</h2><p class="text-zinc-400 text-sm">Infinite terrain streaming. <strong>Drag to explore.</strong></p></div>
+                <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-move min-h-[300px]"><canvas id="procCanvas" class="w-full h-full"></canvas><div class="absolute bottom-4 left-4 text-xs font-mono text-zinc-500 bg-black/50 p-2 rounded">COORDS: <span id="proc-coords" class="text-white">0, 0</span> | CHUNKS: 9 Loaded</div></div>
+                <div class="mt-6">
+                    <div class="bg-black/40 border border-zinc-800 p-4 rounded font-mono text-[10px] md:text-xs overflow-hidden text-zinc-300 relative h-40">
+                        <div class="absolute top-0 right-0 bg-red-900/50 text-red-200 text-[9px] px-2 py-0.5 rounded-bl uppercase tracking-wider">Chunk Loader</div>
+<pre class="p-2"><span class="text-purple-400">function</span> <span class="text-blue-400">Terrain:Update</span>(playerPos)
+    <span class="text-purple-400">local</span> chunkX = <span class="text-blue-400">math.floor</span>(playerPos.X / ChunkSize)
+    <span class="text-purple-400">local</span> seed = <span class="text-blue-400">self</span>.Seed
+    <span class="text-zinc-500">-- Deterministic Generation</span>
+    <span class="text-purple-400">local</span> noise = <span class="text-blue-400">math.noise</span>(chunkX, seed)
+    <span class="text-blue-400">self</span>:LoadChunk(chunkX, noise)
+    <span class="text-blue-400">self</span>:UnloadDistant(chunkX)
+<span class="text-purple-400">end</span></pre>
                     </div>
                 </div>
             </div>
 
         </section>
+
+        <div class="hidden md:block absolute bottom-6 right-6 w-64 font-mono text-[10px] text-zinc-500 pointer-events-none select-none overflow-hidden">
+            <div class="border-l-2 border-zinc-800 pl-3">
+                <div class="uppercase tracking-widest mb-2 text-zinc-600 font-bold">System Activity</div>
+                <div id="activity-log" class="space-y-1 h-24 overflow-hidden flex flex-col justify-end">
+                    <div>[SYS] Kernel v6.6.0 loaded.</div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script src="js/core.js"></script>
     <script src="js/terminal.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/portfolio.js"></script>
     <script src="js/network.js"></script>
     <script src="js/physics.js"></script>
     <script src="js/data.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/security.js"></script>
+    <script src="js/procedural.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/identity.js"></script>
+    <script src="js/boot.js"></script>
 </body>
 </html>
