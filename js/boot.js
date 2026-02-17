@@ -13,7 +13,7 @@
 
     const bootSpeed = 2;
     const sequence = [
-        { text: "FLUXFORGE KERNEL RE-V6 [BUILD 1029]", delay: 50 },
+        { text: "GRIMWORKS KERNEL RE-V6 [BUILD 1029]", delay: 50 },
         { text: "CORE: 64-BIT LUAU VM // JIT-COMPILER ENABLED", delay: 50 },
         { text: "MOUNTING /ROOT/ARCHIVES/COMMISSIONS ... OK", delay: 200 },
         { text: "LINKING REPLICATION_GRAPH (PORT 420) ... SUCCESS", delay: 100 },
