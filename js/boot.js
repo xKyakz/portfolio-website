@@ -1,10 +1,15 @@
 (() => {
     const screen = document.getElementById('boot-screen');
     const log = document.getElementById('boot-log');
-    const memDisplay = document.getElementById('boot-mem');
+    const bootMem = document.getElementById('boot-mem');
     const bar = document.getElementById('boot-bar');
     
     if (!screen) return;
+
+    const overlay = document.createElement('div');
+    overlay.className = "absolute inset-0 flex items-center justify-center bg-black z-[110] cursor-pointer group";
+    overlay.innerHTML = `<div class="text-accent font-bold animate-pulse group-hover:scale-105 transition-transform underline tracking-widest uppercase">[ Click to Initialize System ]</div>`;
+    screen.appendChild(overlay);
 
     const bootSpeed = 2;
     const sequence = [
@@ -32,7 +37,7 @@
             const gain = ctx.createGain();
             osc.type = type;
             osc.frequency.setValueAtTime(freq, ctx.currentTime);
-            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.setValueAtTime(0.05, ctx.currentTime);
             gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
             osc.connect(gain);
             gain.connect(ctx.destination);
@@ -41,20 +46,28 @@
         } catch(e) {}
     };
 
-    let memCount = 0;
-    const maxMem = 64000;
-    const memInterval = setInterval(() => {
-        memCount += 1234;
-        if (memCount >= maxMem) {
-            memCount = maxMem;
-            clearInterval(memInterval);
-        }
-        memDisplay.innerText = `${memCount}KB OK`;
-    }, 50);
+    const startBoot = () => {
+        overlay.remove();
+        if (window.bgm) window.bgm.play().catch(() => {});
+        
+        let memCount = 0;
+        const memInterval = setInterval(() => {
+            memCount += 1234;
+            if (memCount >= 64000) {
+                memCount = 64000;
+                clearInterval(memInterval);
+            }
+            if (bootMem) bootMem.innerText = `${memCount}KB OK`;
+        }, 50);
+
+        typeLine();
+    };
+
+    overlay.onclick = startBoot;
 
     const typeLine = () => {
         if (lineIndex >= sequence.length) {
-            finishBoot();
+            setTimeout(finishBoot, 500);
             return;
         }
 
@@ -64,9 +77,7 @@
         log.appendChild(line);
 
         let charIndex = 0;
-        
-        const progress = ((lineIndex + 1) / sequence.length) * 100;
-        bar.style.width = `${progress}%`;
+        bar.style.width = `${((lineIndex + 1) / sequence.length) * 100}%`;
 
         const typeChar = () => {
             if (charIndex < data.text.length) {
@@ -75,39 +86,29 @@
                 setTimeout(typeChar, bootSpeed);
             } else {
                 lineIndex++;
-                if (data.delay === 800) playBeep(1200); // Success beep
-                else if (Math.random() > 0.8) playBeep(150, 'sawtooth'); // Random "crunch" noise
+                if (data.text.includes("COMPLETE")) playBeep(1200);
+                else if (Math.random() > 0.8) playBeep(200, 'sawtooth');
                 setTimeout(typeLine, data.delay);
             }
         };
-
         typeChar();
     };
 
     const finishBoot = () => {
-        clearInterval(memInterval);
-        memDisplay.innerText = "64KB OK";
-        bar.style.width = "100%";
         bar.classList.add('bg-green-500');
-
         setTimeout(() => {
             const flash = document.createElement('div');
-            flash.className = "fixed inset-0 bg-white z-[101] pointer-events-none mix-blend-overlay";
+            flash.className = "fixed inset-0 bg-white z-[120] pointer-events-none mix-blend-overlay";
             document.body.appendChild(flash);
             
-            screen.style.transition = "opacity 0.5s ease-out, transform 0.5s ease-out";
+            screen.style.transition = "opacity 0.8s ease, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)";
             screen.style.opacity = "0";
             screen.style.transform = "scale(1.1)";
             
-            flash.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' });
-
             setTimeout(() => {
                 screen.remove();
                 flash.remove();
-            }, 500);
+            }, 800);
         }, 500);
     };
-
-    setTimeout(typeLine, 500);
-
 })();
