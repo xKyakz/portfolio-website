@@ -2,29 +2,29 @@
     const mount = document.getElementById('services-container');
     if (!mount) return;
 
-    const tiers = [
+const tiers = [
         {
             id: "MODULE_INJECTION",
             name: "Component Scripting",
-            cost: "5,000 - 12,000 R$",
-            devex: "$17.50 - $42.00 USD",
-            details: "Development of standalone systems such as custom DataStores, inventory backends, or modular weapon systems.",
+            cost: "$25.00 - $60.00 USD",
+            devex: "7,000 - 17,000 R$",
+            details: "I will create a single, fully functioning feature for your game, like a custom inventory, a secure saving system, or a weapon mechanic.",
             chips: ["LUA_U", "CLEAN_API", "PLUG_N_PLAY"]
         },
         {
             id: "SYSTEM_ARCHITECTURE",
             name: "Core Engine / Framework",
-            cost: "25,000 - 50,000+ R$",
-            devex: "$87.50 - $175.00+ USD",
-            details: "Engineering the entire backend structure, including replication, game loops, and secure server-side authority.",
+            cost: "$125.00 - $250.00+ USD",
+            devex: "35,000 - 70,000+ R$",
+            details: "I will build the entire foundation of your game. This includes the main game loop, securing the server against hackers, and ensuring everything runs smoothly.",
             chips: ["SCALABLE", "ACID_DATA", "HIGH_UPTIME"]
         },
         {
             id: "PERFORMANCE_AUDIT",
             name: "Optimization & Security",
-            cost: "5,000 R$ / Hour",
-            devex: "$17.50 USD / Hour",
-            details: "Fixing memory leaks, securing vulnerable remotes, and optimizing logic to maintain high frame rates on mobile.",
+            cost: "$25.00 USD / Hour",
+            devex: "7,000 R$ / Hour",
+            details: "I will fix your broken or laggy game. I track down memory leaks, patch security holes to stop exploiters, and make your game run perfectly on mobile devices.",
             chips: ["PROFILER", "ANTI_EXPLOIT", "FIXER"]
         }
     ];
@@ -37,7 +37,7 @@
             <div class="text-[10px] font-bold text-zinc-500 mb-2 tracking-widest">${t.id}</div>
             <div class="text-xl font-bold text-white mb-1">${t.name}</div>
             <div class="text-accent font-mono text-sm">${t.cost}</div>
-            <div class="text-zinc-500 font-mono text-[10px] mb-4 uppercase">DevEx: ${t.devex}</div>
+            <div class="text-zinc-500 font-mono text-[10px] mb-4 uppercase">Robux: ${t.devex}</div>
             <p class="text-zinc-400 text-xs mb-6 leading-relaxed">${t.details}</p>
             <div class="flex flex-wrap gap-2">
                 ${t.chips.map(c => `<span class="px-2 py-0.5 bg-zinc-800 text-[9px] text-zinc-400 rounded border border-zinc-700">${c}</span>`).join('')}
@@ -54,11 +54,23 @@
             <ul class="space-y-4 text-xs text-zinc-400 leading-relaxed">
                 <li class="flex items-start">
                     <span class="text-accent mr-2 font-bold">01.</span>
-                    <span><strong class="text-zinc-300 uppercase">Defined Directives:</strong> To maintain system integrity, I require a granular task list. Vague requests lead to logical conflicts; clear tasks lead to perfection.</span>
+                    <span><strong class="text-zinc-300 uppercase">Clear Instructions:</strong> I need a highly detailed list of what you want. Vague ideas lead to mistakes; clear directions mean you get exactly what you paid for.</span>
                 </li>
                 <li class="flex items-start">
                     <span class="text-accent mr-2 font-bold">02.</span>
-                    <span><strong class="text-zinc-300 uppercase">Agile Support:</strong> Minor tweaks to constants or UI positioning are included. I don't nickel-and-dime over small adjustments.</span>
+                    <span><strong class="text-zinc-300 uppercase">Free Adjustments:</strong> If you need minor changes after I finish (like tweaking a speed value or moving a UI button), I will do it for free.</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-accent mr-2 font-bold">03.</span>
+                    <span><strong class="text-zinc-300 uppercase">Assets Ready:</strong> I am a programmer, not an artist. All 3D models, user interfaces (UI), and animations must be finished and given to me before I begin scripting.</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-accent mr-2 font-bold">04.</span>
+                    <span><strong class="text-zinc-300 uppercase">Fixed Scope:</strong> The quoted price strictly covers the original task list. Asking to add brand-new mechanics or major redesigns halfway through the project will cost extra.</span>
+                </li>
+                <li class="flex items-start">
+                    <span class="text-accent mr-2 font-bold">05.</span>
+                    <span><strong class="text-zinc-300 uppercase">Payment Terms:</strong> For larger architecture projects, a partial upfront payment is required to lock in my schedule. I do not accept percentage-based pay (% revenue) for unreleased games.</span>
                 </li>
             </ul>
         </div>
@@ -68,15 +80,15 @@
             </h3>
             <div class="bg-black/40 border border-zinc-800 p-5 rounded-lg border-l-2 border-l-accent">
                 <p class="text-xs text-zinc-400 italic mb-4">
-                    "I don't just script; I architect systems with six years of computational experience. My logic is built for extreme performance and absolute security."
+                    "I don't just write scripts; I build reliable game foundations based on six years of programming experience. My code is designed to be fast, secure, and unbreakable."
                 </p>
                 <div class="space-y-2 text-[11px]">
                     <div class="flex items-center text-green-500 font-bold uppercase tracking-tighter">
                         <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></span>
-                        Lifetime Bug-Fix Protocol
+                        Lifetime Bug-Fix Guarantee
                     </div>
                     <p class="text-zinc-500 leading-tight">
-                        If a flaw is identified in my logic, the patch is deployed at zero cost. My code is expected to be flawless; if it isn't, I fix it.
+                        If a bug or error is found in the code I wrote for you, I will fix it immediately at zero cost. I take full responsibility for my work.
                     </p>
                 </div>
             </div>

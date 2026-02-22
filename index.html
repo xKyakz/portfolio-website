@@ -78,6 +78,7 @@
                 <button onclick="bootModule('terminal')" id="nav-terminal" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 transition-all bg-zinc-800 border-accent text-white"> > ./terminal.lua </button>
                 <button onclick="bootModule('services')" id="nav-services" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./contracts.log </button>
                 <button onclick="bootModule('portfolio')" id="nav-portfolio" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./archives.log </button>
+                <button onclick="bootModule('videos')" id="nav-videos" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./system_demos.mp4 </button>
                 <button onclick="bootModule('network')" id="nav-network" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./replication.lua </button>
                 <button onclick="bootModule('physics')" id="nav-physics" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./spatial_hash.lua </button>
                 <button onclick="bootModule('data')" id="nav-data" class="nav-btn w-full text-left px-3 py-2 text-sm rounded border-l-2 border-transparent text-zinc-400 hover:text-white hover:bg-zinc-800/50 transition-all"> > ./atomic_data.lua </button>
@@ -153,7 +154,7 @@
                         </div>
                         <div class="mt-6 text-center">
                             <div class="text-2xl font-bold text-white">Kyakz</div>
-                            <div class="text-sm text-zinc-500 font-mono">Region: US-EAST</div>
+                            <div class="text-sm text-zinc-500 font-mono">Timezone: Central Daylight Time</div>
                         </div>
                         <div class="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none"></div>
                     </div>
@@ -344,6 +345,15 @@
                 </div>
             </div>
 
+<div id="videos" class="hidden h-full flex flex-col max-w-6xl mx-auto overflow-hidden">
+    <div class="mb-6 shrink-0">
+        <h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Live Telemetry <span class="text-accent">//</span> Raw Demos</h2>
+        <p class="text-zinc-400 text-sm">Unedited MP4 captures of custom systems in action.</p>
+    </div>
+    <div id="video-grid" class="flex-1 overflow-y-auto custom-scroll pr-2 grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
+        </div>
+</div>
+
             <div id="procedural" class="hidden h-full flex flex-col max-w-6xl mx-auto">
                 <div class="mb-6"><h2 class="text-2xl md:text-3xl font-bold text-white mb-1">Procedural <span class="text-accent">//</span> Chunk Loading</h2><p class="text-zinc-400 text-sm">Infinite terrain streaming. <strong>Drag to explore.</strong></p></div>
                 <div class="relative flex-1 bg-zinc-900/50 border border-zinc-700 rounded-xl overflow-hidden cursor-move min-h-[300px]"><canvas id="procCanvas" class="w-full h-full"></canvas><div class="absolute bottom-4 left-4 text-xs font-mono text-zinc-500 bg-black/50 p-2 rounded">COORDS: <span id="proc-coords" class="text-white">0, 0</span> | CHUNKS: 9 Loaded</div></div>
@@ -388,5 +398,6 @@
     <script src="js/settings.js"></script>
     <script src="js/identity.js"></script>
     <script src="js/boot.js"></script>
+    <script src="js/videos.js"></script>
 </body>
 </html>

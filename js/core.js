@@ -121,7 +121,7 @@ function bootModule(moduleId) {
         activeBtn.classList.remove('border-transparent', 'text-zinc-400');
     }
     
-    const modules = ['terminal', 'services', 'network', 'physics', 'data', 'ai', 'security', 'procedural', 'portfolio', 'identity', 'settings'];
+    const modules = ['terminal', 'services', 'videos', 'network', 'physics', 'data', 'ai', 'security', 'procedural', 'portfolio', 'identity', 'settings'];
     modules.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add('hidden');

@@ -13,8 +13,8 @@
                 meta: "ROLE: Lead Scripter | STATUS: LIVE",
                 link: "https://www.youtube.com/@Gentoi",
                 linkText: "Gentoi's Youtube",
-                desc: "Architected the underlying framework for this 1v5 asymmetrical horror cycle. The primary engineering focus was a 'Kinetic Movement' suite, featuring client-predicted vaulting, sliding, and momentum conservation to ensure competitive fluidity. I also built the modular objective interaction engine, utilizing strict server-side validation to prevent exploits without introducing input latency.",
-                context: "An asymmetrical horror experience inspired by Dead by Daylight and Pillar Chase 2. Survivors utilize fast-paced traversal tech to complete 5-stage objectives while evading a roster of Monsters, each assigned a specific 'Threat Level' based on their mechanical complexity.",
+                desc: "I built the core mechanics for this 1v5 horror game. My main focus was making the player movement feel incredibly smooth—adding sliding, vaulting, and momentum. I also created the objective system and made sure the server double-checks everything so hackers can't cheat, all without slowing down the game for normal players.",
+                context: "A horror game similar to Dead by Daylight. Players have to use fast movement skills to complete objectives while running away from different monsters, each with their own unique abilities.",
                 features: [
                     { name: "Kinetic Controller", value: "Momentum-based Slide/Vault Physics" },
                     { name: "Threat System", value: "Dynamic Killer Ability Scaling" },
@@ -29,8 +29,8 @@
                 meta: "ROLE: Full Stack Lead | STATUS: LIVE",
                 link: "https://discord.gg/grimworks",
                 linkText: "Join Grimworks Discord",
-                desc: "Spearheading the full-stack development pipeline. On the backend, I designed a fault-tolerant data replication layer to ensure combat states and inventory transactions remain synced under load. For the frontend, I built a reactive UI framework that interpolates heavy server data into smooth visual feedback. The critical challenge is maintaining a rigid Server-Authoritative state while preserving the 'feel' of a client-sided action game.",
-                context: "A high-fidelity ecosystem pushing the limits of the Roblox engine. Grimworks focuses on creating mechanic-heavy experiences that require robust backend architecture to handle complex combat states, secure data replication, and intricate inventory management.",
+                desc: "I led the programming for both the player side and the server side. I built a secure system that guarantees player inventories and combat actions save correctly, even if the server is struggling. I also designed the user interface to respond instantly to player actions, making the heavy background calculations feel invisible.",
+                context: "A highly detailed, action-packed game that pushes Roblox to its limits. It requires a very strong, custom-built backend to handle fast combat and complex player inventories without breaking.",
                 features: [
                     { name: "Replication Layer", value: "Fault-Tolerant State Syncing" },
                     { name: "Reactive UI", value: "Interpolated Visual Feedback" },
@@ -45,7 +45,7 @@
                 icon: "☢️",
                 title: "LUMIN: VOXEL GLOBAL ILLUMINATION",
                 meta: "VERSION: 0.0.4a | TYPE: Graphics Engine",
-                desc: "A real-time global illumination solver written entirely in Luau. Zero pre-baked lighting. Instead, it discretizes the workspace into a bit-packed 3D voxel grid to simulate light bounce and color bleeding.<br><br>Utilizes <strong>Parallel Luau</strong> to offload ray-marching to worker threads, allowing dynamic light sources (flashlights, muzzle flashes) to update the ambient environment instantly without impacting the main render thread.",
+                desc: "A custom lighting engine I built from scratch. Instead of using fake, pre-made lighting, it calculates how light bounces around the room in real-time.<br><br>I made it run fast by splitting the heavy lighting math across multiple computer cores. This means flashlights and glowing effects look incredibly realistic without causing the game to lag.",
                 features: [
                     { name: "Voxel Grid", value: "Bit-Packed Spatial Data" },
                     { name: "Parallelization", value: "Multi-Threaded Ray Marching" },

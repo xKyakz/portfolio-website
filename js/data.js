@@ -77,11 +77,11 @@
     };
 
     window.startTransaction = () => {
-        if (state.inProgress || state.walletA < 500) {
-            if (state.walletA < 500) {
-                state.walletA = 1000;
-                updateUI('walletA', 1000);
-            }
+        if (state.inProgress) return; 
+        
+        if (state.walletA < 500) {
+            state.walletA = 1000;
+            updateUI('walletA', 1000);
             return;
         }
 
@@ -113,7 +113,7 @@
     };
 
     window.simulateCrash = () => {
-        if (!state.inProgress) return;
+        if (!state.inProgress || state.crashed) return; 
         state.crashed = true;
         clearTimeout(state.timer);
 

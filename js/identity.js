@@ -9,19 +9,19 @@
             skills: [
                 { 
                     name: "Luau (Strict)", 
-                    desc: "Enforcing rigid type-checking across the codebase. This eliminates 95% of runtime errors before they happen and enables compiler optimizations for faster execution."
+                    desc: "Writing highly disciplined code. By strictly defining what every piece of data is, I catch 95% of bugs before the game even runs, resulting in faster and more stable gameplay."
                 },
                 { 
                     name: "Parallel Actors", 
-                    desc: "Utilizing the Actor model to desynchronize heavy compute tasks (like terrain generation or raycasting) onto separate hardware threads, freeing up the main render thread."
+                    desc: "Multi-threading. I split heavy background tasks (like loading massive maps) onto separate CPU cores so your game never freezes or drops frames for the player."
                 },
                 { 
                     name: "SIMD Math", 
-                    desc: "Single Instruction, Multiple Data. optimizing vector math operations to process batches of physics calculations in a single CPU cycle."
+                    desc: "Advanced math optimization. I structure game physics so the computer can process large groups of calculations all at once, rather than one by one."
                 },
                 { 
                     name: "Janitor / Maid", 
-                    desc: "Automated memory lifecycle management. Ensures that when an object is destroyed, every connection, instance, and signal linked to it is cleaned up to prevent memory leaks."
+                    desc: "Automated cleanup systems. When a player leaves or a match ends, my code automatically deletes all unused memory to prevent the server from crashing over time."
                 }
             ]
         },
@@ -31,19 +31,19 @@
             skills: [
                 { 
                     name: "Buffer Serialization", 
-                    desc: "Bypassing standard remote events by writing raw bytes to a memory buffer. This reduces packet size by up to 90% compared to JSON or standard tables."
+                    desc: "Data compression. Instead of sending bulky messages between the server and players, I send tiny, raw data packets, reducing internet usage by up to 90%."
                 },
                 { 
                     name: "Delta Compression", 
-                    desc: "Only transmitting the data that has CHANGED since the last frame, rather than the entire state. Crucial for low-bandwidth environments."
+                    desc: "Smart updates. Instead of updating everything on the screen every second, my system only updates the exact things that just moved or changed."
                 },
                 { 
                     name: "Lag Compensation", 
-                    desc: "Server-side 'Rewind' logic. When a player fires a shot, the server temporarily rolls back the hitboxes to where they were on that player's screen to verify the hit."
+                    desc: "Fair combat systems. If a player shoots someone on their screen, the server 'rewinds' time to check if it was a fair hit, making combat feel smooth even on bad Wi-Fi."
                 },
                 { 
                     name: "Clock Sync", 
-                    desc: "Synchronizing the client's clock with the server's to predict movement and interpolate entities smoothly, masking latency artifacts."
+                    desc: "Keeping everyone on the same page. I sync the player's game clock perfectly with the server to stop characters from teleporting or stuttering."
                 }
             ]
         },
@@ -53,19 +53,19 @@
             skills: [
                 { 
                     name: "Rojo / VS Code", 
-                    desc: "Professional workflow enabling the use of external editors (VS Code), Git version control, and Copilot within the Roblox ecosystem."
+                    desc: "Professional studio setup. I don't code directly inside Roblox; I use industry-standard software tools that allow for faster typing and better code organization."
                 },
                 { 
                     name: "Wally Pkg Mgr", 
-                    desc: "Dependency management for Roblox. Allows for the modular installation of community packages (like Promise, Maid, Signal) with strict version locking."
+                    desc: "A library system. It lets me safely install and manage tested, community-made tools without risking broken game files."
                 },
                 { 
                     name: "Lune Automation", 
-                    desc: "Running Luau scripts outside of Roblox. I use this for build pipelines, automated testing, and filesystem manipulation."
+                    desc: "Automated workflows. I use external scripts to automatically test features and build the game files without needing to open Roblox Studio."
                 },
                 { 
                     name: "Git Flow", 
-                    desc: "Standardized branching strategy. Features are developed in isolation, tested, and then merged into 'Main' to ensure production stability."
+                    desc: "Safe updates. I build and test new features in an isolated 'sandbox' before adding them to the live game, guaranteeing players never see broken updates."
                 }
             ]
         },
@@ -75,19 +75,19 @@
             skills: [
                 { 
                     name: "ECS (Matter)", 
-                    desc: "Entity Component System. A data-oriented paradigm that separates data (Components) from logic (Systems), allowing for massive scalability compared to OOP."
+                    desc: "A modern way to organize game code. Instead of attaching scripts to every object, I group data together so the game can handle thousands of items without lagging."
                 },
                 { 
                     name: "Spatial Hash", 
-                    desc: "A constant-time O(1) collision detection algorithm. Partitions the world into a grid, so we only check collisions against nearby neighbors."
+                    desc: "Instant collision detection. Instead of checking every object on the map to see if they touched, the system only checks objects standing right next to each other."
                 },
                 { 
                     name: "Flow Fields", 
-                    desc: "Pathfinding optimization for crowds. Instead of calculating a path for every unit, we generate a 'field' of vectors that guides all units to the target simultaneously."
+                    desc: "Smart AI movement. Instead of calculating a complex path for 100 different zombies, I create a 'current' that guides the whole crowd to the player at once."
                 },
                 { 
                     name: "Verlet Integration", 
-                    desc: "A numerical method for integrating equations of motion. Used for stable simulation of soft bodies, ropes, and cloth physics."
+                    desc: "Advanced physics math. I use this to create realistic, bouncy movement for things like ropes, capes, and cloth."
                 }
             ]
         }
